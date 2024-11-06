@@ -8,13 +8,13 @@ import java.awt.*;
 /**
  * Màn hình mã hoá cơ bản
  */
-public class BasicEncryptionScreen extends JPanel implements Screen {
+public class TraditionalEncryptScreen extends JPanel implements Screen {
     private final JSplitPane Split;
     private final EncryptSection EncryptSection;
     private final DecryptSection DecryptSection;
     private final ActionListContainer ActionListContainer;
 
-    public BasicEncryptionScreen() {
+    public TraditionalEncryptScreen() {
         this.setLayout(new BorderLayout());
         this.EncryptSection = new EncryptSection();
         this.DecryptSection = new DecryptSection();

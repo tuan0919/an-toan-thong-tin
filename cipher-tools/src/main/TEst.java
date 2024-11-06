@@ -44,12 +44,12 @@ public class TEst extends JPanel {
         panel4 = new JPanel();
 
         //======== this ========
-        setBorder (new javax. swing. border. CompoundBorder( new javax .swing .border .TitledBorder (new javax. swing.
-        border. EmptyBorder( 0, 0, 0, 0) , "JFor\u006dDesi\u0067ner \u0045valu\u0061tion", javax. swing. border. TitledBorder. CENTER
-        , javax. swing. border. TitledBorder. BOTTOM, new java .awt .Font ("Dia\u006cog" ,java .awt .Font
-        .BOLD ,12 ), java. awt. Color. red) , getBorder( )) );  addPropertyChangeListener (
-        new java. beans. PropertyChangeListener( ){ @Override public void propertyChange (java .beans .PropertyChangeEvent e) {if ("bord\u0065r"
-        .equals (e .getPropertyName () )) throw new RuntimeException( ); }} );
+        setBorder (new javax. swing. border. CompoundBorder( new javax .swing .border .TitledBorder (new javax. swing. border
+        . EmptyBorder( 0, 0, 0, 0) , "JF\u006frmD\u0065sig\u006eer \u0045val\u0075ati\u006fn", javax. swing. border. TitledBorder. CENTER, javax
+        . swing. border. TitledBorder. BOTTOM, new java .awt .Font ("Dia\u006cog" ,java .awt .Font .BOLD ,
+        12 ), java. awt. Color. red) , getBorder( )) );  addPropertyChangeListener (new java. beans
+        . PropertyChangeListener( ){ @Override public void propertyChange (java .beans .PropertyChangeEvent e) {if ("\u0062ord\u0065r" .equals (e .
+        getPropertyName () )) throw new RuntimeException( ); }} );
         setLayout(new BorderLayout());
 
         //======== tabbedPane1 ========
@@ -80,7 +80,9 @@ public class TEst extends JPanel {
                             header.setLayout(new BoxLayout(header, BoxLayout.X_AXIS));
 
                             //---- label1 ----
-                            label1.setText("Plain text: ");
+                            label1.setText("M\u00e3 h\u00f3a d\u1ecbch");
+                            label1.setFont(new Font("Sitka Text", Font.PLAIN, 10));
+                            label1.setVerticalAlignment(SwingConstants.TOP);
                             header.add(label1);
 
                             //---- label2 ----
@@ -126,6 +128,9 @@ public class TEst extends JPanel {
                             //---- label4 ----
                             label4.setText("69.8 KB");
                             header2.add(label4);
+
+                            //---- hSpacer2 ----
+                            hSpacer2.setBorder(new BevelBorder(BevelBorder.LOWERED));
                             header2.add(hSpacer2);
 
                             //---- encode2 ----

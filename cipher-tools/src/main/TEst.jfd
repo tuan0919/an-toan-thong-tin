@@ -24,7 +24,9 @@ new FormModel {
 								"border": new javax.swing.border.CompoundBorder( new javax.swing.border.CompoundBorder( new javax.swing.border.EmptyBorder( 5, 0, 5, 0 ), new javax.swing.border.MatteBorder( 1, 0, 1, 0, sfield java.awt.Color black ) ), new javax.swing.border.EmptyBorder( 5, 5, 5, 5 ) )
 								add( new FormComponent( "javax.swing.JLabel" ) {
 									name: "label1"
-									"text": "Plain text: "
+									"text": "Mã hóa dịch"
+									"font": new java.awt.Font( "Sitka Text", 0, 10 )
+									"verticalAlignment": 1
 								} )
 								add( new FormComponent( "javax.swing.JLabel" ) {
 									name: "label2"
@@ -73,6 +75,7 @@ new FormModel {
 								} )
 								add( new FormComponent( "com.jformdesigner.designer.wrapper.HSpacer" ) {
 									name: "hSpacer2"
+									"border": new javax.swing.border.BevelBorder( 1, null, null, null, null )
 								} )
 								add( new FormComponent( "javax.swing.JButton" ) {
 									name: "encode2"
