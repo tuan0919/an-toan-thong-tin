@@ -1,0 +1,127 @@
+JFDML JFormDesigner: "8.2.4.0.393" Java: "21.0.4" encoding: "UTF-8"
+
+new FormModel {
+	contentType: "form/swing"
+	root: new FormRoot {
+		add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
+			name: "this"
+			add( new FormContainer( "javax.swing.JTabbedPane", new FormLayoutManager( class javax.swing.JTabbedPane ) ) {
+				name: "tabbedPane1"
+				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class javax.swing.BoxLayout ) {
+					"axis": 1
+				} ) {
+					name: "BasicCipherContainer"
+					add( new FormContainer( "javax.swing.JSplitPane", new FormLayoutManager( class javax.swing.JSplitPane ) ) {
+						name: "Split"
+						"orientation": 0
+						"preferredSize": new java.awt.Dimension( 700, 407 )
+						"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
+						add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
+							name: "EncodeSection"
+							"preferredSize": new java.awt.Dimension( 400, 200 )
+							add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class javax.swing.BoxLayout ) ) {
+								name: "header"
+								"border": new javax.swing.border.CompoundBorder( new javax.swing.border.CompoundBorder( new javax.swing.border.EmptyBorder( 5, 0, 5, 0 ), new javax.swing.border.MatteBorder( 1, 0, 1, 0, sfield java.awt.Color black ) ), new javax.swing.border.EmptyBorder( 5, 5, 5, 5 ) )
+								add( new FormComponent( "javax.swing.JLabel" ) {
+									name: "label1"
+									"text": "Plain text: "
+								} )
+								add( new FormComponent( "javax.swing.JLabel" ) {
+									name: "label2"
+									"text": "69.8 KB"
+								} )
+								add( new FormComponent( "com.jformdesigner.designer.wrapper.HSpacer" ) {
+									name: "hSpacer1"
+								} )
+								add( new FormComponent( "javax.swing.JButton" ) {
+									name: "encode"
+									"text": "encrypt \ud83d\udd10"
+								} )
+							}, new FormLayoutConstraints( class java.lang.String ) {
+								"value": "North"
+							} )
+							add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
+								name: "scrollBarContainer"
+								add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
+									name: "scrollbar"
+									"preferredSize": new java.awt.Dimension( 24, 80 )
+									add( new FormComponent( "javax.swing.JTextArea" ) {
+										name: "textArea"
+									} )
+								}, new FormLayoutConstraints( class java.lang.String ) {
+									"value": "Center"
+								} )
+							}, new FormLayoutConstraints( class java.lang.String ) {
+								"value": "Center"
+							} )
+						}, new FormLayoutConstraints( class java.lang.String ) {
+							"value": "left"
+						} )
+						add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
+							name: "DecodeSection"
+							"preferredSize": new java.awt.Dimension( 400, 200 )
+							add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class javax.swing.BoxLayout ) ) {
+								name: "header2"
+								"border": new javax.swing.border.EmptyBorder( 5, 5, 5, 5 )
+								add( new FormComponent( "javax.swing.JLabel" ) {
+									name: "label3"
+									"text": "Cipher text: "
+								} )
+								add( new FormComponent( "javax.swing.JLabel" ) {
+									name: "label4"
+									"text": "69.8 KB"
+								} )
+								add( new FormComponent( "com.jformdesigner.designer.wrapper.HSpacer" ) {
+									name: "hSpacer2"
+								} )
+								add( new FormComponent( "javax.swing.JButton" ) {
+									name: "encode2"
+									"text": "decrypt \ud83d\udd13"
+								} )
+							}, new FormLayoutConstraints( class java.lang.String ) {
+								"value": "North"
+							} )
+							add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
+								name: "scrollBarContainer2"
+								add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
+									name: "scrollbar2"
+									add( new FormComponent( "javax.swing.JTextArea" ) {
+										name: "textArea2"
+									} )
+								}, new FormLayoutConstraints( class java.lang.String ) {
+									"value": "Center"
+								} )
+							}, new FormLayoutConstraints( class java.lang.String ) {
+								"value": "Center"
+							} )
+						}, new FormLayoutConstraints( class java.lang.String ) {
+							"value": "right"
+						} )
+					} )
+				}, new FormLayoutConstraints( null ) {
+					"title": "Mã hoá cơ bản"
+				} )
+				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridLayout ) ) {
+					name: "panel2"
+				}, new FormLayoutConstraints( null ) {
+					"title": "Mã hoá đối xứng"
+				} )
+				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridLayout ) ) {
+					name: "panel3"
+				}, new FormLayoutConstraints( null ) {
+					"title": "Mã hoá bất đối xứng"
+				} )
+				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridLayout ) ) {
+					name: "panel4"
+				}, new FormLayoutConstraints( null ) {
+					"title": "Chữ ký điện tử"
+				} )
+			}, new FormLayoutConstraints( class java.lang.String ) {
+				"value": "Center"
+			} )
+		}, new FormLayoutConstraints( null ) {
+			"location": new java.awt.Point( 0, 0 )
+			"size": new java.awt.Dimension( 430, 415 )
+		} )
+	}
+}
