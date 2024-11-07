@@ -7,17 +7,16 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.function.Consumer;
 
 public class ActionListContainer extends JPanel {
-    private State<String> state;
-    private SwitchModeButton[] buttons;
+    private final SwitchModeButton[] buttons;
 
-    public ActionListContainer() {
-        state = new State<>("Method_1");
+    public ActionListContainer(JComponent observable, Consumer<String> onModeChange) {
         buttons = new SwitchModeButton[] {
-                new SwitchModeButton(state, "Method_1"),
-                new SwitchModeButton(state, "Method_2"),
-                new SwitchModeButton(state, "Method_3"),
+                new SwitchModeButton(observable, "Mã hóa dịch vòng", onModeChange),
+                new SwitchModeButton(observable, "Mã hóa thay thế", onModeChange),
+                new SwitchModeButton(observable, "Mã hóa Affine", onModeChange),
         };
         initialState();
     }
@@ -27,39 +26,31 @@ public class ActionListContainer extends JPanel {
         this.setBorder(new EmptyBorder(5, 5, 5, 5));
         this.setBackground(Color.WHITE);
 
-        var onClickHandler = new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                SwitchModeButton casted = (SwitchModeButton) e.getComponent();
-                state.setValue(casted.name);
-            }
-        };
-
         for (var btn : buttons) {
             this.add(btn);
-            btn.addMouseListener(onClickHandler);
         }
-
     }
 
     static class SwitchModeButton extends JLabel {
-        private boolean isClicked;
         private final String name;
+        private boolean isHover = false;
+        private boolean isClicked = false;
+        private final Consumer<String> onClickHandler;
 
-        public SwitchModeButton(State<String> stateClick, String name) {
+        public SwitchModeButton(JComponent observable, String name, Consumer<String> onClickHandler) {
             this.name = name;
-            this.isClicked = stateClick.getValue().equals(name);
-            stateClick.onChangeValue((newValue) -> {
-                renderUI();
+            this.onClickHandler = onClickHandler;
+            // phần tử con lắng nghe sự kiện "currentMode" trên phần tử cha và thực hiện render giao diện
+            observable.addPropertyChangeListener("currentMode", (event) ->{
+                String newValue = event.getNewValue().toString();
+                if (newValue.equals(name)) {
+                    isClicked = true;
+                    setBorder(loweredBorder);
+                } else {
+                    isClicked = false;
+                    setBorder(raisedBorder);
+                }
             });
-            this.setText(name);
-            ImageIcon icon = new ImageIcon("C:\\Users\\Nguyen Tuan\\Downloads\\icons8-lock-48.png");
-            Image resizedImg = icon.getImage().getScaledInstance(20, 20, Image.SCALE_SMOOTH);
-            ImageIcon resizedIcon = new ImageIcon(resizedImg);
-            this.setBackground(Color.WHITE);
-            this.setIcon(resizedIcon);
-            this.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-            this.setFont(new Font("Sitka Text", Font.BOLD, 13));
             renderUI();
         }
 
@@ -80,14 +71,37 @@ public class ActionListContainer extends JPanel {
         );
 
         private void renderUI () {
-            if (isClicked) {
-                this.setBorder(loweredBorder);
-            }
-            else {
-                this.setBorder(raisedBorder);
-            }
+            this.setText(name);
+            ImageIcon icon = new ImageIcon("C:\\Users\\Nguyen Tuan\\Downloads\\icons8-lock-48.png");
+            Image resizedImg = icon.getImage().getScaledInstance(20, 20, Image.SCALE_SMOOTH);
+            ImageIcon resizedIcon = new ImageIcon(resizedImg);
+            this.setBackground(Color.WHITE);
+            this.setIcon(resizedIcon);
+            this.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            this.setFont(new Font("Sitka Text", Font.BOLD, 13));
+
+            this.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseExited(MouseEvent e) {
+                    super.mouseExited(e);
+                    if (isClicked) return;
+                    isHover = false;
+                    setBorder(raisedBorder);
+                }
+
+                @Override
+                public void mouseEntered(MouseEvent e) {
+                    isHover = true;
+                    setBorder(loweredBorder);
+                    super.mouseEntered(e);
+                }
+
+                @Override
+                public void mousePressed(MouseEvent e) {
+                    onClickHandler.accept(name);
+                }
+
+            });
         }
-
-
     }
 }

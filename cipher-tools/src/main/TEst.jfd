@@ -84,15 +84,10 @@ new FormModel {
 							}, new FormLayoutConstraints( class java.lang.String ) {
 								"value": "North"
 							} )
-							add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
-								name: "scrollBarContainer2"
-								add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
-									name: "scrollbar2"
-									add( new FormComponent( "javax.swing.JTextArea" ) {
-										name: "textArea2"
-									} )
-								}, new FormLayoutConstraints( class java.lang.String ) {
-									"value": "Center"
+							add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
+								name: "scrollPane1"
+								add( new FormComponent( "javax.swing.JTable" ) {
+									name: "table1"
 								} )
 							}, new FormLayoutConstraints( class java.lang.String ) {
 								"value": "Center"

@@ -36,20 +36,20 @@ public class TEst extends JPanel {
         label4 = new JLabel();
         hSpacer2 = new JPanel(null);
         encode2 = new JButton();
-        scrollBarContainer2 = new JPanel();
-        scrollbar2 = new JScrollPane();
-        textArea2 = new JTextArea();
+        scrollPane1 = new JScrollPane();
+        table1 = new JTable();
         panel2 = new JPanel();
         panel3 = new JPanel();
         panel4 = new JPanel();
 
         //======== this ========
-        setBorder (new javax. swing. border. CompoundBorder( new javax .swing .border .TitledBorder (new javax. swing. border
-        . EmptyBorder( 0, 0, 0, 0) , "JF\u006frmD\u0065sig\u006eer \u0045val\u0075ati\u006fn", javax. swing. border. TitledBorder. CENTER, javax
-        . swing. border. TitledBorder. BOTTOM, new java .awt .Font ("Dia\u006cog" ,java .awt .Font .BOLD ,
-        12 ), java. awt. Color. red) , getBorder( )) );  addPropertyChangeListener (new java. beans
-        . PropertyChangeListener( ){ @Override public void propertyChange (java .beans .PropertyChangeEvent e) {if ("\u0062ord\u0065r" .equals (e .
-        getPropertyName () )) throw new RuntimeException( ); }} );
+        setBorder (new javax. swing. border. CompoundBorder( new javax .swing .border .TitledBorder (new
+        javax. swing. border. EmptyBorder( 0, 0, 0, 0) , "JFor\u006dDesi\u0067ner \u0045valu\u0061tion", javax
+        . swing. border. TitledBorder. CENTER, javax. swing. border. TitledBorder. BOTTOM, new java
+        .awt .Font ("Dia\u006cog" ,java .awt .Font .BOLD ,12 ), java. awt
+        . Color. red) , getBorder( )) );  addPropertyChangeListener (new java. beans.
+        PropertyChangeListener( ){ @Override public void propertyChange (java .beans .PropertyChangeEvent e) {if ("bord\u0065r" .
+        equals (e .getPropertyName () )) throw new RuntimeException( ); }} );
         setLayout(new BorderLayout());
 
         //======== tabbedPane1 ========
@@ -139,17 +139,11 @@ public class TEst extends JPanel {
                         }
                         DecodeSection.add(header2, BorderLayout.NORTH);
 
-                        //======== scrollBarContainer2 ========
+                        //======== scrollPane1 ========
                         {
-                            scrollBarContainer2.setLayout(new BorderLayout());
-
-                            //======== scrollbar2 ========
-                            {
-                                scrollbar2.setViewportView(textArea2);
-                            }
-                            scrollBarContainer2.add(scrollbar2, BorderLayout.CENTER);
+                            scrollPane1.setViewportView(table1);
                         }
-                        DecodeSection.add(scrollBarContainer2, BorderLayout.CENTER);
+                        DecodeSection.add(scrollPane1, BorderLayout.CENTER);
                     }
                     Split.setBottomComponent(DecodeSection);
                 }
@@ -199,9 +193,8 @@ public class TEst extends JPanel {
     private JLabel label4;
     private JPanel hSpacer2;
     private JButton encode2;
-    private JPanel scrollBarContainer2;
-    private JScrollPane scrollbar2;
-    private JTextArea textArea2;
+    private JScrollPane scrollPane1;
+    private JTable table1;
     private JPanel panel2;
     private JPanel panel3;
     private JPanel panel4;

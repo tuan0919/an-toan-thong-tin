@@ -1,4 +1,4 @@
-package view.screen.basicEncrypt;
+package view.component;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
