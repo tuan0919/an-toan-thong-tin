@@ -16,17 +16,17 @@ public class SymmetricEncryptScreen extends JPanel implements Screen {
 
     public SymmetricEncryptScreen() {
         this.InputTypeListContainer = new InputTypeListContainer(this, this::setInputType);
-        this.InputContainer = new InputContainer();
+        this.InputContainer = new InputContainer(this);
         initialState();
     }
 
     public void setFunction(String function) {
-        this.firePropertyChange("setFunction", this.function, function);
+        this.firePropertyChange("function", this.function, function);
         this.function = function;
     }
 
     public void setInputType(String inputType) {
-        this.firePropertyChange("setInputType", this.inputType, inputType);
+        this.firePropertyChange("inputType", this.inputType, inputType);
         this.inputType = inputType;
     }
 
@@ -35,6 +35,6 @@ public class SymmetricEncryptScreen extends JPanel implements Screen {
         this.setLayout(layout);
         this.add(InputTypeListContainer, BorderLayout.NORTH);
         this.add(InputContainer, BorderLayout.CENTER);
-        setInputType("Mã hóa văn bản");
+        setInputType("Encrypt Text");
     }
 }
