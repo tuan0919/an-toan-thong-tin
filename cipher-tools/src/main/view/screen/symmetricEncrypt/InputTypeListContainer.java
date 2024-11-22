@@ -14,8 +14,8 @@ public class InputTypeListContainer extends JPanel {
 
     public InputTypeListContainer(JComponent observable, Consumer<String> onModeChange) {
         buttons = new SwitchModeButton[] {
-                new SwitchModeButton(observable, "Mã hóa văn bản", onModeChange),
-                new SwitchModeButton(observable, "Mã hóa file", onModeChange)
+                new SwitchModeButton(observable, "Encrypt Text", onModeChange),
+                new SwitchModeButton(observable, "Encrypt File", onModeChange)
         };
         initialState();
     }
@@ -39,7 +39,7 @@ public class InputTypeListContainer extends JPanel {
         public SwitchModeButton(JComponent observable, String name, Consumer<String> onClickHandler) {
             this.name = name;
             this.onClickHandler = onClickHandler;
-            observable.addPropertyChangeListener("setInputType", (event) ->{
+            observable.addPropertyChangeListener("inputType", (event) ->{
                 String newValue = event.getNewValue().toString();
                 if (newValue.equals(name)) {
                     isClicked = true;
