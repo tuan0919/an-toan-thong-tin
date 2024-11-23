@@ -72,7 +72,6 @@ public class App extends JFrame {
     }
     public void activeTab() {
         TraditionalTab_Button.addActionListener(new ActionListener() {
-
             @Override
             public void actionPerformed(ActionEvent e) {
                 resetTabColors();
@@ -83,7 +82,6 @@ public class App extends JFrame {
                 ContentPanel.repaint();
             }
         });
-
         SymmetricTab_Button.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -95,7 +93,6 @@ public class App extends JFrame {
                 ContentPanel.repaint();
             }
         });
-
         AsymmetricTab_Button.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -119,7 +116,6 @@ public class App extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 resetTabColors();
-                HashTab_Button.setBackground(Color.GREEN);
                 ContentPanel.removeAll();
                 ContentPanel.add(HashScreenView);
                 ContentPanel.revalidate();
@@ -130,7 +126,6 @@ public class App extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 resetTabColors();
-                SignatureTab_Button.setBackground(Color.GREEN);
                 ContentPanel.removeAll();
                 ContentPanel.add(SignatureScreenView);
                 ContentPanel.revalidate();
