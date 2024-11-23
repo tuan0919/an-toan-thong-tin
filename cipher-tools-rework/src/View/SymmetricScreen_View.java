@@ -1,38 +1,37 @@
 package View;
 
+import Model.Screen.ScreenObserver;
+import Model.Screen.SymmetricScreen_Model;
 import Util.MyUtil;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.File;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
+import java.awt.event.ItemEvent;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
-public class SymmetricScreen_View extends AScreenView {
+public class SymmetricScreen_View extends AScreenView implements ScreenObserver {
     private JTextField InputKeyTextField;
+    private JTextField InputIVTextField;
     private JComboBox<String> ModeComboBox;
     private JComboBox<String> PaddingComboBox;
     private JComboBox<String> KeyComboBox;
+    private JComboBox<String> AlgorithmComboBox;
     private JButton GenerateKeyButton;
     private JButton SaveKeyButton;
-    private JComboBox<String> AlgorithmButton;
     private JButton ChooseFileButton;
     private JButton CancelFileButton;
     private JLabel IsSelectedLabel;
+    private JLabel InputIVLabel;
     private JTextArea InputTextArea;
     private JTextArea OutputTextArea;
     private JButton EncryptButton;
     private JButton DecryptButton;
+    private SymmetricScreen_Model model;
 
     public SymmetricScreen_View() {
         super();
@@ -42,15 +41,17 @@ public class SymmetricScreen_View extends AScreenView {
     public void initialComponent() {
         // Khởi tạo các thành phần giao diện
         InputKeyTextField = new JTextField(35);
+        InputIVTextField = new JTextField(35);
         ModeComboBox = new JComboBox<>();
         PaddingComboBox = new JComboBox<>();
         KeyComboBox = new JComboBox<>();
         GenerateKeyButton = new JButton("Tạo key");
         SaveKeyButton = new JButton("Lưu key mới nhập");
-        AlgorithmButton = new JComboBox<>();
+        AlgorithmComboBox = new JComboBox<>();
         ChooseFileButton = new JButton("Chọn file");
         CancelFileButton = new JButton("Hủy chọn file");
         IsSelectedLabel = new JLabel("Không có file nào được chọn");
+        InputIVLabel = new JLabel("Nhập IV:");
         InputTextArea = new JTextArea(15, 30);
         InputTextArea.setLineWrap(true);
         InputTextArea.setWrapStyleWord(true);
@@ -77,21 +78,23 @@ public class SymmetricScreen_View extends AScreenView {
         gbc.gridx = 1;
         settingsPanel.add(InputKeyTextField, gbc);
 
-        // Nhãn và lựa chọn Mode
+        // Nhãn và trường nhập cho Key
         gbc.gridx = 0;
         gbc.gridy = 1;
+        settingsPanel.add(InputIVLabel, gbc);
+        gbc.gridx = 1;
+        settingsPanel.add(InputIVTextField, gbc);
+
+        // Nhãn và lựa chọn Mode
+        gbc.gridx = 0;
+        gbc.gridy = 2;
         settingsPanel.add(new JLabel("Chọn mode:"), gbc);
         gbc.gridx = 1;
         settingsPanel.add(ModeComboBox, gbc);
-        ModeComboBox.addItem("ECB");
-        ModeComboBox.addItem("CBC");
-        ModeComboBox.addItem("CFB");
-        ModeComboBox.addItem("OFB");
-        ModeComboBox.addItem("CTR");
 
         // Nhãn và lựa chọn Padding
         gbc.gridx = 0;
-        gbc.gridy = 2;
+        gbc.gridy = 3;
         settingsPanel.add(new JLabel("Chọn padding:"), gbc);
         gbc.gridx = 1;
         settingsPanel.add(PaddingComboBox, gbc);
@@ -101,32 +104,32 @@ public class SymmetricScreen_View extends AScreenView {
 
         // Nhãn và lựa chọn giải thuật
         gbc.gridx = 0;
-        gbc.gridy = 3;
+        gbc.gridy = 4;
         settingsPanel.add(new JLabel("Chọn giải thuật:"), gbc);
         gbc.gridx = 1;
-        settingsPanel.add(AlgorithmButton, gbc);
-        AlgorithmButton.addItem("AES");
-        AlgorithmButton.addItem("Camellia");
-        AlgorithmButton.addItem("TripleDES");
-        AlgorithmButton.addItem("DES");
-        AlgorithmButton.addItem("IDEA");
+        settingsPanel.add(AlgorithmComboBox, gbc);
+        AlgorithmComboBox.addItem("AES");
+        AlgorithmComboBox.addItem("Camellia");
+        AlgorithmComboBox.addItem("TripleDES");
+        AlgorithmComboBox.addItem("DES");
+        AlgorithmComboBox.addItem("IDEA");
 
         // Nhãn và lựa chọn Key Size
         gbc.gridx = 0;
-        gbc.gridy = 4;
+        gbc.gridy = 5;
         settingsPanel.add(new JLabel("Chọn key size:"), gbc);
         gbc.gridx = 1;
         settingsPanel.add(KeyComboBox, gbc);
 
         // Nút Tạo Key
         gbc.gridx = 1;
-        gbc.gridy = 5;
+        gbc.gridy = 6;
         gbc.anchor = GridBagConstraints.WEST;
         settingsPanel.add(GenerateKeyButton, gbc);
 
         // Nút Lưu Key
         gbc.gridx = 1;
-        gbc.gridy = 6;
+        gbc.gridy = 7;
         gbc.anchor = GridBagConstraints.WEST;
         settingsPanel.add(SaveKeyButton, gbc);
 
@@ -209,12 +212,16 @@ public class SymmetricScreen_View extends AScreenView {
         CancelFileButton.addActionListener(e -> callback.accept(e));
     }
 
-    public void onModeComboBox_Choose(Consumer<ActionEvent> callback) {
-        ModeComboBox.addActionListener(e -> callback.accept(e));
+    public void onModeComboBox_Choose(Consumer<ItemEvent> callback) {
+        ModeComboBox.addItemListener(e -> callback.accept(e));
     }
 
-    public void onAlgorithmButton_Click(Consumer<ActionEvent> callback) {
-        AlgorithmButton.addActionListener(e -> callback.accept(e));
+    public void onAlgorithmComboBox_Choose(Consumer<ItemEvent> callback) {
+        AlgorithmComboBox.addItemListener(e -> callback.accept(e));
+    }
+
+    public void onKeySizeComboBox_Choose(Consumer<ItemEvent> callback) {
+        KeyComboBox.addItemListener(e -> callback.accept(e));
     }
 
     public void onGenerateKeyButton_Click(Consumer<ActionEvent> callback) {
@@ -232,6 +239,34 @@ public class SymmetricScreen_View extends AScreenView {
 
     public void onDecryptButton_Click(Consumer<ActionEvent> callback) {
         DecryptButton.addActionListener(e -> callback.accept(e));
+    }
+
+    public void renderAlgorithmComboBox(List<String> algorithms) {
+        AlgorithmComboBox.removeAllItems();
+        for (String algorithm : algorithms) {
+            AlgorithmComboBox.addItem(algorithm);
+        }
+    }
+
+    public void renderKeyComboBox(List<String> keys) {
+        KeyComboBox.removeAllItems();
+        for (String key : keys) {
+            KeyComboBox.addItem(key);
+        }
+    }
+
+    public void renderPaddingComboBox(List<String> data) {
+        PaddingComboBox.removeAllItems();
+        for (String item : data) {
+            PaddingComboBox.addItem(item);
+        }
+    }
+
+    public void renderModeComboBox(List<String> data) {
+        ModeComboBox.removeAllItems();
+        for (String item : data) {
+            ModeComboBox.addItem(item);
+        }
     }
 
     public JTextField getInputKeyTextField() {
@@ -258,8 +293,16 @@ public class SymmetricScreen_View extends AScreenView {
         return SaveKeyButton;
     }
 
-    public JComboBox<String> getAlgorithmButton() {
-        return AlgorithmButton;
+    public JComboBox<String> getAlgorithmComboBox() {
+        return AlgorithmComboBox;
+    }
+
+    public JTextField getInputIVTextField() {
+        return InputIVTextField;
+    }
+
+    public JLabel getInputIVLabel() {
+        return InputIVLabel;
     }
 
     public JButton getChooseFileButton() {
@@ -300,5 +343,30 @@ public class SymmetricScreen_View extends AScreenView {
 
     public void showInfoMessage(String message) {
         MyUtil.showWarnMessage(this, message, "Thông báo");
+    }
+
+    @Override
+    public void update(String event, Map<String, Object> data) {
+        switch (event) {
+            case "init_state" -> {
+                List<String> available_mode = (List<String>) data.get("available_mode");
+                renderModeComboBox(available_mode);
+            }
+            case "change_mode" -> {
+                String current_mode = (String) data.get("current_mode");
+                List<String> available_algorithm = (List<String>) data.get("available_algorithm");
+                renderAlgorithmComboBox(available_algorithm);
+                AlgorithmComboBox.setSelectedIndex(0);
+            }
+            case "change_algorithm" -> {
+                String current_algorithm = (String) data.get("current_algorithm");
+                List<String> available_padding = (List<String>) data.get("available_padding");
+                List<Integer> available_key_size = (List<Integer>) data.get("available_key_size");
+                renderKeyComboBox(available_key_size.stream().map(n -> n+"").toList());
+                renderPaddingComboBox(available_padding);
+                PaddingComboBox.setSelectedIndex(0);
+                KeyComboBox.setSelectedIndex(0);
+            }
+        }
     }
 }
