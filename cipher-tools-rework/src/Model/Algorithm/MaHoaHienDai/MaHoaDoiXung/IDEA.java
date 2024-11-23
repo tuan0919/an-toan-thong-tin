@@ -1,4 +1,4 @@
-package Model.MaHoaHienDai.MaHoaDoiXung;
+package Model.Algorithm.MaHoaHienDai.MaHoaDoiXung;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
@@ -159,9 +159,12 @@ public class IDEA {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
-
     }
+
+    public String getIv() {
+        return Base64.getEncoder().encodeToString(iv.getIV());
+    }
+
     public void loadKeyAndIV(int sizeKey, String nameEncryption) throws NoSuchAlgorithmException, NoSuchProviderException {
         // Đăng ký provider của Bouncy Castle
         Security.addProvider(new BouncyCastleProvider());
@@ -207,8 +210,6 @@ public class IDEA {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
-
 
     }
     public void loadKeyAndIVFromUser(String keyFromUser){

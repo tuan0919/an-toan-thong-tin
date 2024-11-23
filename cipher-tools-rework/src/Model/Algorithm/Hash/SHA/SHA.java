@@ -1,4 +1,4 @@
-package Model.Hash.SHA;
+package Model.Algorithm.Hash.SHA;
 
 import org.bouncycastle.util.encoders.Base64;
 

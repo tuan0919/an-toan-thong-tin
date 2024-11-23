@@ -1,4 +1,4 @@
-package Model.MaHoaCoBan;
+package Model.Algorithm.MaHoaCoBan;
 
 import java.util.HashMap;
 import java.util.Map;

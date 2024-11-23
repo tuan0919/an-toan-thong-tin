@@ -1,4 +1,4 @@
-package Model.ChuKySo;
+package Model.Algorithm.ChuKySo;
 
 import java.io.*;
 import java.nio.file.Files;

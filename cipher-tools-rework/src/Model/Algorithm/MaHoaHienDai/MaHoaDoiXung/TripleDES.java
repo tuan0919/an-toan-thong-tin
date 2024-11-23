@@ -1,4 +1,4 @@
-package Model.MaHoaHienDai.MaHoaDoiXung;
+package Model.Algorithm.MaHoaHienDai.MaHoaDoiXung;
 
 import javax.crypto.*;
 import javax.crypto.spec.IvParameterSpec;
@@ -13,69 +13,48 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Base64;
 
-public class DES {
+public class TripleDES {
     private SecretKey secretKey;
     private IvParameterSpec iv;
     private byte[] ivBytes = new byte[8];
     static final String saveKeyDir = ".";
 
-    public String getSecretKey() {
-        return Base64.getEncoder().encodeToString(secretKey.getEncoded());
-    }
 
-    public String encrypt(String plainText, String mode, String padding) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
+    public String encrypt( String plainText, String mode, String padding) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
         if(mode.equals("ECB")) {
             takeKeyFromTxtFile();
-            Cipher cipher = Cipher.getInstance("DES/ECB/" + padding);
+            Cipher cipher = Cipher.getInstance("DESede/ECB/" + padding);
             cipher.init(Cipher.ENCRYPT_MODE, secretKey);
             byte[] cipherText = cipher.doFinal(plainText.getBytes());
             return Base64.getEncoder().encodeToString(cipherText);
         } else {
             if(mode.equals("CBC")) {
                 takeKeyFromTxtFile();
-                Cipher cipher = Cipher.getInstance("DES/CBC/" + padding);
+                Cipher cipher = Cipher.getInstance("DESede/CBC/" + padding);
                 cipher.init(Cipher.ENCRYPT_MODE, secretKey, iv);
                 byte[] cipherText = cipher.doFinal(plainText.getBytes());
                 return Base64.getEncoder().encodeToString(cipherText);
             }else {
                 takeKeyFromTxtFile();
-                Cipher cipher = Cipher.getInstance("DES/" + mode + "/" + padding);
+                Cipher cipher = Cipher.getInstance("DESede/" + mode + "/" + padding);
                 cipher.init(Cipher.ENCRYPT_MODE, secretKey, iv);
                 byte[] cipherText = cipher.doFinal(plainText.getBytes());
                 return Base64.getEncoder().encodeToString(cipherText);
             }
         }
     }
-    public String encryptFromKeyUser(int sizeKey,String keyUser,String plainText, String mode, String padding) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
-        if(mode.equals("ECB")) {
-            loadKeyFromUser(keyUser);
-            Cipher cipher = Cipher.getInstance("DES/ECB/" + padding);
-            cipher.init(Cipher.ENCRYPT_MODE, secretKey);
-            byte[] cipherText = cipher.doFinal(plainText.getBytes());
-            return Base64.getEncoder().encodeToString(cipherText);
-        }else{
-            if(mode.equals("CBC")) {
-                loadKeyAndIVFromUser(keyUser);
-                Cipher cipher = Cipher.getInstance("DES/CBC/" + padding);
-                cipher.init(Cipher.ENCRYPT_MODE, secretKey, iv);
-                byte[] cipherText = cipher.doFinal(plainText.getBytes());
-                return Base64.getEncoder().encodeToString(cipherText);
-            }else {
-                loadKeyAndIVFromUser(keyUser);
-                Cipher cipher = Cipher.getInstance("DES/" + mode + "/" + padding);
-                cipher.init(Cipher.ENCRYPT_MODE, secretKey, iv);
-                byte[] cipherText = cipher.doFinal(plainText.getBytes());
-                return Base64.getEncoder().encodeToString(cipherText);
-            }
-        }
 
+    public String getIv() {
+        return Base64.getEncoder().encodeToString(iv.getIV());
     }
+
+
     public boolean encryptAFile(String path, String mode, String padding) {
 
         try {
             if (mode.equals("ECB")) {
                 takeKeyFromTxtFile();
-                Cipher cipher = Cipher.getInstance("DES/ECB/" + padding);
+                Cipher cipher = Cipher.getInstance("DESede/ECB/" + padding);
                 cipher.init(Cipher.ENCRYPT_MODE, secretKey);
                 String destFile = path.substring(0, path.lastIndexOf('.')) + "DaMaHoa" + path.substring(path.lastIndexOf('.'));
                 BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(new File(path)));
@@ -86,7 +65,6 @@ public class DES {
                 while ((bytesRead = bufferedInputStream.read(byteArray)) != -1) {
                     cipherOutputStream.write(byteArray, 0, bytesRead);
                 }
-
                 cipherOutputStream.close();
                 bufferedOutputStream.close();
                 bufferedInputStream.close();
@@ -95,7 +73,7 @@ public class DES {
             } else {
                 if (mode.equals("CBC")) {
                     takeKeyFromTxtFile();
-                    Cipher cipher = Cipher.getInstance("DES/CBC/" + padding);
+                    Cipher cipher = Cipher.getInstance("DESede/CBC/" + padding);
                     cipher.init(Cipher.ENCRYPT_MODE, secretKey, iv);
                     String destFile = path.substring(0, path.lastIndexOf('.')) + "DaMaHoa" + path.substring(path.lastIndexOf('.'));
                     BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(new File(path)));
@@ -109,11 +87,10 @@ public class DES {
                     cipherOutputStream.close();
                     bufferedOutputStream.close();
                     bufferedInputStream.close();
-
                     return true;
                 }else{
                     takeKeyFromTxtFile();
-                    Cipher cipher = Cipher.getInstance("DES/" + mode + "/" + padding);
+                    Cipher cipher = Cipher.getInstance("DESede/" + mode + "/" + padding);
                     cipher.init(Cipher.ENCRYPT_MODE, secretKey, iv);
                     String destFile = path.substring(0, path.lastIndexOf('.')) + "DaMaHoa" + path.substring(path.lastIndexOf('.'));
                     BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(new File(path)));
@@ -127,7 +104,6 @@ public class DES {
                     cipherOutputStream.close();
                     bufferedOutputStream.close();
                     bufferedInputStream.close();
-
                     return true;
                 }
             }
@@ -143,12 +119,36 @@ public class DES {
             throw new RuntimeException(e);
         }
     }
+    public String encryptFromKeyUser(int sizeKey,String keyUser,String plainText, String mode, String padding) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
+        if(mode.equals("ECB")) {
+            loadKeyFromUser(keyUser);
+            Cipher cipher = Cipher.getInstance("DESede/ECB/" + padding);
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+            byte[] cipherText = cipher.doFinal(plainText.getBytes());
+            return Base64.getEncoder().encodeToString(cipherText);
+        }else{
+            if(mode.equals("CBC")) {
+                loadKeyAndIVFromUser(keyUser);
+                Cipher cipher = Cipher.getInstance("DESede/CBC/" + padding);
+                cipher.init(Cipher.ENCRYPT_MODE, secretKey, iv);
+                byte[] cipherText = cipher.doFinal(plainText.getBytes());
+                return Base64.getEncoder().encodeToString(cipherText);
+            }else {
+                loadKeyAndIVFromUser(keyUser);
+                Cipher cipher = Cipher.getInstance("DESede/" + mode + "/" + padding);
+                cipher.init(Cipher.ENCRYPT_MODE, secretKey, iv);
+                byte[] cipherText = cipher.doFinal(plainText.getBytes());
+                return Base64.getEncoder().encodeToString(cipherText);
+            }
+        }
+
+    }
     public String decryptText(String encryptedText, String mode, String padding) {
         try {
 
             if (mode.equals("ECB")) {
                 takeKeyFromTxtFile();
-                Cipher cipher = Cipher.getInstance("DES/ECB/" + padding);
+                Cipher cipher = Cipher.getInstance("DESede/ECB/" + padding);
                 cipher.init(Cipher.DECRYPT_MODE, secretKey);
                 byte[] cipherText = Base64.getDecoder().decode(encryptedText);
                 byte[] plainText = cipher.doFinal(cipherText);
@@ -159,7 +159,7 @@ public class DES {
 
                 if (mode.equals("CBC")) {
                     takeKeyFromTxtFile();
-                    Cipher cipher = Cipher.getInstance("DES/CBC/" + padding);
+                    Cipher cipher = Cipher.getInstance("DESede/CBC/" + padding);
                     cipher.init(Cipher.DECRYPT_MODE, secretKey, iv);
                     byte[] cipherText = Base64.getDecoder().decode(encryptedText);
                     byte[] plainText = cipher.doFinal(cipherText);
@@ -167,7 +167,7 @@ public class DES {
                     return result;
                 } else {
                     takeKeyFromTxtFile();
-                    Cipher cipher = Cipher.getInstance("DES/" + mode + "/" + padding);
+                    Cipher cipher = Cipher.getInstance("DESede/" + mode + "/" + padding);
                     cipher.init(Cipher.DECRYPT_MODE, secretKey, iv);
                     byte[] cipherText = Base64.getDecoder().decode(encryptedText);
                     byte[] plainText = cipher.doFinal(cipherText);
@@ -194,7 +194,7 @@ public class DES {
         try {
             if (mode.equals("ECB")) {
                 takeKeyFromTxtFile();
-                Cipher cipher = Cipher.getInstance("DES/ECB/" + padding);
+                Cipher cipher = Cipher.getInstance("DESede/ECB/" + padding);
                 cipher.init(Cipher.DECRYPT_MODE, secretKey);
                 String destFile = path.replace("DaMaHoa", "DaGiaiMaHoa");
                 BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(new File(path)));
@@ -214,7 +214,7 @@ public class DES {
             } else {
                 if (mode.equals("CBC")) {
                     takeKeyFromTxtFile();
-                    Cipher cipher = Cipher.getInstance("DES/CBC/" + padding);
+                    Cipher cipher = Cipher.getInstance("DESede/CBC/" + padding);
                     cipher.init(Cipher.DECRYPT_MODE, secretKey, iv);
                     String destFile = path.replace("DaMaHoa", "DaGiaiMaHoa");
                     BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(new File(path)));
@@ -231,7 +231,7 @@ public class DES {
                     return true;
                 }else{
                     takeKeyFromTxtFile();
-                    Cipher cipher = Cipher.getInstance("DES/" + mode + "/" + padding);
+                    Cipher cipher = Cipher.getInstance("DESede/" + mode + "/" + padding);
                     cipher.init(Cipher.DECRYPT_MODE, secretKey, iv);
                     String destFile = path.replace("DaMaHoa", "DaGiaiMaHoa");
                     BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(new File(path)));
@@ -264,11 +264,11 @@ public class DES {
 
 
     public void loadKey(int sizeKey) throws NoSuchAlgorithmException {
-        KeyGenerator keyGen = KeyGenerator.getInstance("DES");
+        KeyGenerator keyGen = KeyGenerator.getInstance("DESede");
         keyGen.init(sizeKey);
         secretKey = keyGen.generateKey();
 
-        try (FileWriter fileWriter = new FileWriter(saveKeyDir + "/DESKey.txt")) {
+        try (FileWriter fileWriter = new FileWriter(saveKeyDir + "/DESedeKey.txt")) {
             fileWriter.write(Base64.getEncoder().encodeToString(secretKey.getEncoded()));
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -276,13 +276,13 @@ public class DES {
     }
 
     public void loadKeyAndIV(int sizeKey) throws NoSuchAlgorithmException {
-        KeyGenerator keyGen = KeyGenerator.getInstance("DES");
+        KeyGenerator keyGen = KeyGenerator.getInstance("DESede");
         keyGen.init(sizeKey);
         secretKey = keyGen.generateKey();
         SecureRandom random = new SecureRandom();
         random.nextBytes(ivBytes);
         iv = new IvParameterSpec(ivBytes);
-        try (FileWriter fileWriter = new FileWriter(saveKeyDir + "/DESKey.txt")) {
+        try (FileWriter fileWriter = new FileWriter(saveKeyDir + "/DESedeKey.txt")) {
             fileWriter.write(Base64.getEncoder().encodeToString(secretKey.getEncoded()));
             fileWriter.write("\n");
             fileWriter.write(Base64.getEncoder().encodeToString(iv.getIV()));
@@ -293,10 +293,10 @@ public class DES {
 
     public void loadKeyFromUser(String keyFromUser) throws NoSuchAlgorithmException {
         byte[] key = Base64.getDecoder().decode(keyFromUser);
-        secretKey = new SecretKeySpec(key, 0, key.length, "DES");
+        secretKey = new SecretKeySpec(key, 0, key.length, "DESede");
 
         // lưu key  vào 1 file
-        File file = new File(saveKeyDir, "DESKey.txt");
+        File file = new File(saveKeyDir, "DESedeKey.txt");
         System.out.println("Saving key and IV to: " + file.getAbsolutePath());
         try (FileWriter fileWriter = new FileWriter(file)) {
             fileWriter.write(Base64.getEncoder().encodeToString(secretKey.getEncoded()));
@@ -308,12 +308,12 @@ public class DES {
 
     public void loadKeyAndIVFromUser(String keyFromUser) throws NoSuchAlgorithmException {
         byte[] key = Base64.getDecoder().decode(keyFromUser);
-        secretKey = new SecretKeySpec(key, 0, key.length, "DES");
+        secretKey = new SecretKeySpec(key, 0, key.length, "DESede");
         SecureRandom random = new SecureRandom();
         random.nextBytes(ivBytes);
         iv = new IvParameterSpec(ivBytes);
         // lưu key  vào 1 file
-        File file = new File(saveKeyDir, "DESKey.txt");
+        File file = new File(saveKeyDir, "DESedeKey.txt");
         System.out.println("Saving key and IV to: " + file.getAbsolutePath());
         try (FileWriter fileWriter = new FileWriter(file)) {
             fileWriter.write(Base64.getEncoder().encodeToString(secretKey.getEncoded()));
@@ -327,17 +327,17 @@ public class DES {
 
     public void takeKeyFromTxtFile() {
         try {
-            Path pathFile = Paths.get("DESKey.txt");
+            Path pathFile = Paths.get("DESedeKey.txt");
             BufferedReader bufferedReader = Files.newBufferedReader(pathFile);
             String encodedKey = bufferedReader.readLine();
             String encodedIV = bufferedReader.readLine();
             if (encodedIV == null) {
                 byte[] decodedKey = Base64.getDecoder().decode(encodedKey);
-                secretKey = new SecretKeySpec(decodedKey, "DES");
+                secretKey = new SecretKeySpec(decodedKey, "DESede");
             } else {
                 byte[] decodedKey = Base64.getDecoder().decode(encodedKey);
                 byte[] decodedIV = Base64.getDecoder().decode(encodedIV);
-                secretKey = new SecretKeySpec(decodedKey, "DES");
+                secretKey = new SecretKeySpec(decodedKey, "DESede");
                 iv = new IvParameterSpec(decodedIV);
             }
 
@@ -347,21 +347,24 @@ public class DES {
         }
     }
 
+    public String getSecretKey() {
+        return Base64.getEncoder().encodeToString(secretKey.getEncoded());
+    }
+
     public static void main(String[] args) {
-        DES des = new DES();
+        TripleDES des = new TripleDES();
         String text = "Hello World";
 
         String encryptedText = null;
         String decryptedText = null;
 
         try {
-            encryptedText = des.encrypt(text,"CTR","NoPadding");
+            encryptedText = des.encrypt(text,"CBC","Iso10126Padding");
             System.out.println("Encrypted text: " + encryptedText);
-            decryptedText = des.decryptText(encryptedText, "CTR", "NoPadding");
+            decryptedText = des.decryptText(encryptedText, "CBC", "Iso10126Padding");
             System.out.println("Decrypted text: " + decryptedText);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-
 }

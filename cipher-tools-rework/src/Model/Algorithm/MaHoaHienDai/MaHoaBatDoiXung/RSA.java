@@ -1,4 +1,4 @@
-package Model.MaHoaHienDai.MaHoaBatDoiXung;
+package Model.Algorithm.MaHoaHienDai.MaHoaBatDoiXung;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;

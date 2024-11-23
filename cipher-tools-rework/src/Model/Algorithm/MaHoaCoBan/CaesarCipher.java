@@ -1,4 +1,4 @@
-package Model.MaHoaCoBan;
+package Model.Algorithm.MaHoaCoBan;
 
 import java.util.ArrayList;
 import java.util.List;
