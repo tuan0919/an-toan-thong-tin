@@ -1,6 +1,7 @@
 package Controller;
 
-import Model.MaHoaHienDai.MaHoaDoiXung.*;
+import Model.Algorithm.MaHoaHienDai.MaHoaDoiXung.*;
+import Model.Screen.SymmetricScreen_Model;
 import View.SymmetricScreen_View;
 
 import javax.crypto.BadPaddingException;
@@ -8,9 +9,8 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
 import java.io.File;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -23,6 +23,7 @@ public class SymmetricScreen_Controller extends AController<SymmetricScreen_View
     private TripleDES tripleDES;
     private DES des;
     private IDEA idea;
+    private SymmetricScreen_Model model;
 
     public SymmetricScreen_Controller(SymmetricScreen_View view) {
         super(view);
@@ -33,12 +34,17 @@ public class SymmetricScreen_Controller extends AController<SymmetricScreen_View
         view.onFileButton_Click(e -> handleFileButton_Click(e));
         view.onCancelFileButton_Click(e -> handleCancelFileButton_Click(e));
         view.onModeComboBox_Choose(e -> handleModeComboBox_Choose(e));
-        view.onAlgorithmButton_Click(e -> handleAlgorithmButton_Click(e));
+        view.onAlgorithmComboBox_Choose(e -> handleAlgorithmCombobox_Choose(e));
+        view.onKeySizeComboBox_Choose(e -> handleKeySizeComboBox_Choose(e));
         view.onInputTextArea_DocumentChange(e -> handleInputTextAreaDocumentChange(e));
         view.onGenerateKeyButton_Click(e -> handleGenerateKeyButton_Click(e));
         view.onSaveKeyButton_Click(e -> handleSaveKeyButton_Click(e));
         view.onEncryptButton_Click(e -> handleEncryptButton_Click(e));
         view.onDecryptButton_Click(e -> handleDecryptButton_Click(e));
+    }
+
+    private void handleKeySizeComboBox_Choose(ItemEvent e) {
+        model.setKeySize(Integer.parseInt(e.getItem().toString()));
     }
 
     private void handleDecryptButton_Click(ActionEvent event) {
@@ -48,7 +54,7 @@ public class SymmetricScreen_Controller extends AController<SymmetricScreen_View
         var ModeComboBox = view.getModeComboBox();
         var PaddingComboBox = view.getPaddingComboBox();
         var KeyComboBox = view.getKeyComboBox();
-        var AlgorithmButton = view.getAlgorithmButton();
+        var AlgorithmButton = view.getAlgorithmComboBox();
         if (IsSelectedLabel.getText().equals("Không có file nào được chọn")
                 && (InputTextArea.getText().length() == 0 || InputTextArea.getText() == null)
 
@@ -119,7 +125,7 @@ public class SymmetricScreen_Controller extends AController<SymmetricScreen_View
         var OutputTextArea = view.getOutputTextArea();
         var ModeComboBox = view.getModeComboBox();
         var PaddingComboBox = view.getPaddingComboBox();
-        var AlgorithmButton = view.getAlgorithmButton();
+        var AlgorithmButton = view.getAlgorithmComboBox();
         var KeyComboBox = view.getKeyComboBox();
         try {
             if (IsSelectedLabel.getText().equals("Không có file nào được chọn")
@@ -324,42 +330,42 @@ public class SymmetricScreen_Controller extends AController<SymmetricScreen_View
 
     private void handleSaveKeyButton_Click(ActionEvent event) {
         String keyUser = view.getInputKeyTextField().getText();
-        var AlgorithmButton = view.getAlgorithmButton();
-        var ModeComboBox = view.getModeComboBox();
+        String mode = model.getMode();
+        String algorithm = model.getAlgorithm();
         try {
             if (keyUser.length() == 0 || keyUser == null) {
                 view.showWarnMessage("Vui lòng nhập key");
             } else {
-                if (AlgorithmButton.getSelectedItem().equals("AES")) {
-                    if (ModeComboBox.getSelectedItem().equals("ECB")) {
+                if ("AES".equals(algorithm)) {
+                    if ("ECB".equals(mode)) {
                         aes.loadKeyFromUser(keyUser, "AES");
                     } else {
                         aes.loadKeyAndIVFromUser(keyUser);
                     }
                 }
-                if (AlgorithmButton.getSelectedItem().equals("Camellia")) {
-                    if (ModeComboBox.getSelectedItem().equals("ECB")) {
+                if ("Camellia".equals(algorithm)) {
+                    if ("ECB".equals(mode)) {
                         camellia.loadKeyFromUser(keyUser);
                     } else {
                         camellia.loadKeyAndIVFromUser(keyUser);
                     }
                 }
-                if (AlgorithmButton.getSelectedItem().equals("TripleDES")) {
-                    if (ModeComboBox.getSelectedItem().equals("ECB")) {
+                if ("TripleDES".equals(algorithm)) {
+                    if ("ECB".equals(mode)) {
                         tripleDES.loadKeyFromUser(keyUser);
                     } else {
                         tripleDES.loadKeyAndIVFromUser(keyUser);
                     }
                 }
-                if (AlgorithmButton.getSelectedItem().equals("DES")) {
-                    if (ModeComboBox.getSelectedItem().equals("ECB")) {
+                if ("DES".equals(algorithm)) {
+                    if ("ECB".equals(mode)) {
                         des.loadKeyFromUser(keyUser);
                     } else {
                         des.loadKeyAndIVFromUser(keyUser);
                     }
                 }
-                if (AlgorithmButton.getSelectedItem().equals("IDEA")) {
-                    if (ModeComboBox.getSelectedItem().equals("ECB")) {
+                if ("IDEA".equals(algorithm)) {
+                    if ("ECB".equals(mode)) {
                         idea.loadKeyFromUser(keyUser);
                     } else {
                         idea.loadKeyAndIVFromUser(keyUser);
@@ -376,43 +382,23 @@ public class SymmetricScreen_Controller extends AController<SymmetricScreen_View
         view.toggleChooseFileButton();
     }
 
-    private void handleAlgorithmButton_Click(ActionEvent event) {
-        var AlgorithmButton = view.getAlgorithmButton();
-        var KeyComboBox = view.getKeyComboBox();
-        if (AlgorithmButton.getSelectedItem().equals("AES")) {
-            KeyComboBox.removeAllItems();
-            KeyComboBox.addItem("128");
-            KeyComboBox.addItem("192");
-            KeyComboBox.addItem("256");
-        } else if (AlgorithmButton.getSelectedItem().equals("Camellia")) {
-            KeyComboBox.removeAllItems();
-            KeyComboBox.addItem("128");
-            KeyComboBox.addItem("192");
-            KeyComboBox.addItem("256");
-        } else if (AlgorithmButton.getSelectedItem().equals("TripleDES")) {
-            KeyComboBox.removeAllItems();
-            KeyComboBox.addItem("168");
-        } else if (AlgorithmButton.getSelectedItem().equals("DES")) {
-            KeyComboBox.removeAllItems();
-            KeyComboBox.addItem("56");
-        } else if (AlgorithmButton.getSelectedItem().equals("IDEA")) {
-            KeyComboBox.removeAllItems();
-            KeyComboBox.addItem("128");
+    private void handleAlgorithmCombobox_Choose(ItemEvent event) {
+        var AlgorithmButton = view.getAlgorithmComboBox();
+        if (AlgorithmButton.getSelectedItem() != null) {
+            model.setAlgorithm(event.getItem().toString());
         }
     }
 
-    private void handleModeComboBox_Choose(ActionEvent event) {
-        var ModeComboBox = view.getModeComboBox();
-        var PaddingComboBox = view.getPaddingComboBox();
-        if (ModeComboBox.getSelectedItem().equals("ECB") || ModeComboBox.getSelectedItem().equals("CBC")) {
-            PaddingComboBox.removeAllItems();
-            PaddingComboBox.addItem("PKCS5Padding");
-            PaddingComboBox.addItem("Iso10126Padding");
+    private void handleModeComboBox_Choose(ItemEvent event) {
+        model.setMode(event.getItem().toString());
+        var InputIVLabel = view.getInputIVLabel();
+        var InputIVTextField = view.getInputIVTextField();
+        if ("ECB".equals(event.getItem().toString())) {
+            InputIVLabel.setVisible(false);
+            InputIVTextField.setVisible(false);
         } else {
-            PaddingComboBox.removeAllItems();
-            PaddingComboBox.addItem("PKCS5Padding");
-            PaddingComboBox.addItem("Iso10126Padding");
-            PaddingComboBox.addItem("NoPadding");
+            InputIVLabel.setVisible(true);
+            InputIVTextField.setVisible(true);
         }
     }
 
@@ -442,66 +428,68 @@ public class SymmetricScreen_Controller extends AController<SymmetricScreen_View
     }
 
     private void handleGenerateKeyButton_Click(ActionEvent event) {
-        var ModeComboBox = view.getModeComboBox();
-        var PaddingComboBox = view.getPaddingComboBox();
-        var AlgorithmButton = view.getAlgorithmButton();
-        var KeyComboBox = view.getKeyComboBox();
         var InputKeyTextField = view.getInputKeyTextField();
+        var InputIVTextField = view.getInputIVTextField();
         String keyTemp = "";
-        String modeText = (String) ModeComboBox.getSelectedItem();
-        String paddingText = (String) PaddingComboBox.getSelectedItem();
-        int keySizeOutput = Integer.valueOf(KeyComboBox.getSelectedItem().toString());
+        String iv = null;
         try {
-
-            if (AlgorithmButton.getSelectedItem().equals("AES")) {
-
-                if (ModeComboBox.getSelectedItem().equals("ECB")) {
-                    aes.loadKey(keySizeOutput);
+            switch (model.getAlgorithm()) {
+                case "AES" -> {
+                    if ("ECB".equals(model.getMode())) {
+                        aes.loadKey(model.getKeySize());
+                    } else {
+                        aes.loadKeyAndIV(model.getKeySize());
+                        iv = aes.getIv();
+                    }
                     keyTemp = aes.getSecretKey().toString();
-                } else {
-                    aes.loadKeyAndIV(keySizeOutput);
-                    keyTemp = aes.getSecretKey().toString();
                 }
-
-            } else if (AlgorithmButton.getSelectedItem().equals("Camellia")) {
-                if (ModeComboBox.getSelectedItem().equals("ECB")) {
-                    camellia.loadKey(keySizeOutput);
-                    keyTemp = camellia.getSecretKey().toString();
-                } else {
-                    camellia.loadKeyAndIV(keySizeOutput, "Camellia");
+                case "Camellia" -> {
+                    if ("ECB".equals(model.getMode())) {
+                        camellia.loadKey(model.getKeySize());
+                    } else {
+                        camellia.loadKeyAndIV(model.getKeySize(), "Camellia");
+                        iv = camellia.getIv();
+                    }
                     keyTemp = camellia.getSecretKey().toString();
                 }
-            } else if (AlgorithmButton.getSelectedItem().equals("TripleDES")) {
-                if (ModeComboBox.getSelectedItem().equals("ECB")) {
-                    tripleDES.loadKey(keySizeOutput);
-                    keyTemp = tripleDES.getSecretKey().toString();
-                } else {
-                    tripleDES.loadKeyAndIV(keySizeOutput);
+                case "TripleDES" -> {
+                    if ("ECB".equals(model.getMode())) {
+                        tripleDES.loadKey(model.getKeySize());
+                    } else {
+                        iv = tripleDES.getIv();
+                        tripleDES.loadKeyAndIV(model.getKeySize());
+                    }
                     keyTemp = tripleDES.getSecretKey().toString();
                 }
-            } else if (AlgorithmButton.getSelectedItem().equals("DES")) {
-                if (ModeComboBox.getSelectedItem().equals("ECB")) {
-                    des.loadKey(keySizeOutput);
-                    keyTemp = des.getSecretKey().toString();
-                } else {
-                    des.loadKeyAndIV(keySizeOutput);
+                case "DES" -> {
+                    if ("ECB".equals(model.getMode())) {
+                        des.loadKey(model.getKeySize());
+                    } else {
+                        iv = des.getIv();
+                        des.loadKeyAndIV(model.getKeySize());
+                    }
                     keyTemp = des.getSecretKey().toString();
                 }
-            } else if (AlgorithmButton.getSelectedItem().equals("IDEA")) {
-                if (ModeComboBox.getSelectedItem().equals("ECB")) {
-                    idea.loadKey(keySizeOutput, "IDEA");
-                    keyTemp = idea.getSecretKey().toString();
-                } else {
-                    idea.loadKeyAndIV(keySizeOutput, "IDEA");
-                    keyTemp = idea.getSecretKey().toString();
+                case "IDEA" -> {
+                    if ("ECB".equals(model.getMode())) {
+                        idea.loadKey(model.getKeySize(), "IDEA");
+                    } else {
+                        iv = idea.getIv();
+                        idea.loadKeyAndIV(model.getKeySize(), "IDEA");
+                    }
+                    keyTemp = des.getSecretKey().toString();
                 }
             }
-            InputKeyTextField.setText(keyTemp);
-        } catch (NoSuchAlgorithmException ex) {
-            throw new RuntimeException(ex);
-        } catch (NoSuchProviderException ex) {
-            throw new RuntimeException(ex);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
         }
+        if (iv != null)  {
+            InputIVTextField.setText(iv);
+            model.setIv(iv);
+        }
+        InputKeyTextField.setText(keyTemp);
+        model.setKey(keyTemp);
     }
 
     @Override
@@ -511,5 +499,8 @@ public class SymmetricScreen_Controller extends AController<SymmetricScreen_View
         tripleDES = new TripleDES();
         des = new DES();
         idea = new IDEA();
+        model = new SymmetricScreen_Model();
+        model.addObserver(view);
+        model.initialize();
     }
 }
