@@ -23,11 +23,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 
 public class SymmetricScreen_Controller extends AController<SymmetricScreen_View> {
-    private AES aes;
-    private Camellia camellia;
-    private TripleDES tripleDES;
-    private DES des;
-    private IDEA idea;
     SymmetricAlgorithm algorithm;
     private SymmetricScreen_Model model;
 
@@ -37,21 +32,76 @@ public class SymmetricScreen_Controller extends AController<SymmetricScreen_View
 
     @Override
     protected void initialCallbacks() {
-        view.onFileButton_Click(e -> handleFileButton_Click(e));
-        view.onCancelFileButton_Click(e -> handleCancelFileButton_Click(e));
+        view.onFileButton_Click(e -> view.showFileChooserForCipher());
+        view.onCancelFileButton_Click(e -> model.setChooseFile(null));
         view.onModeComboBox_Choose(e -> handleModeComboBox_Choose(e));
         view.onAlgorithmComboBox_Choose(e -> handleAlgorithmCombobox_Choose(e));
-        view.onKeySizeComboBox_Choose(e -> handleKeySizeComboBox_Choose(e));
-        view.onPaddingComboBox_Choose(e -> handlePaddingComboBox_Choose(e));
-        view.onInputTextArea_DocumentChange(e -> handleInputTextAreaDocumentChange(e));
+        view.onKeySizeComboBox_Choose(e -> model.setKeySize(Integer.parseInt(e.getItem().toString())));
+        view.onPaddingComboBox_Choose(e -> model.setPadding(e.getItem().toString()));
+        view.onInputTextArea_DocumentChange(e -> view.toggleChooseFileButton());
         view.onInputTextArea_LostFocus(text -> handleInputTextArea_LostFocus(text));
-        view.onInputKeyTextField_LostFocus(text -> model.setInputText(text));
+        view.onInputKeyTextField_LostFocus(text -> model.setKey(text));
         view.onInputIVTextField_LostFocus(text -> model.setIv(text));
         view.onGenerateKeyButton_Click(e -> handleGenerateKeyButton_Click(e));
-        view.onSaveKeyButton_Click(e -> handleSaveKeyButton_Click(e));
+        view.onSaveKeyButton_Click(e -> view.showFileChooserForSaveLocation());
+        view.onLoadKeyButton_Click(e -> view.showFileChooserForLoadKey());
         view.onEncryptButton_Click(e -> handleEncryptButton_Click(e));
         view.onDecryptButton_Click(e -> handleDecryptButton_Click(e));
-        view.onFileChosen(file -> handleFileChosen(file));
+        view.onFileChosen(file -> model.setChooseFile(file));
+        view.onSaveLocationChosen(file -> handleSaveLocationChosen(file));
+        view.onLoadKeyLocationChosen(file -> handleLoadKeyLocationChosen(file));
+    }
+
+    private void handleLoadKeyLocationChosen(File file) {
+        loadEncryptModule();
+        // Đảm bảo file có đuôi .txt
+        String filePath = file.getAbsolutePath();
+        String fileExtension = filePath.substring(filePath.lastIndexOf(".") + 1);
+        if (!fileExtension.equals("txt")) {
+            // Quăng lỗi nếu đuôi file không phải .txt
+            throw new MyAppException(ErrorType.WRONG_FILE_FORMAT_LOAD_KEY, view);
+        }
+        try {
+            algorithm.loadKeyFromFile(filePath);
+        } catch (IOException e) {
+            throw new MyAppException(ErrorType.IO_ERROR, view);
+        }
+        // ok
+        JOptionPane.showMessageDialog(view, "Load key thành công", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+        String currentKey = algorithm.getSecretKeyAsString();
+        String currentIV = algorithm.getIVAsString();
+        model.setKey(currentKey);
+        model.setIv(currentIV);
+        loadEncryptModule();
+    }
+
+    private void handleSaveLocationChosen(File file) {
+        // Đảm bảo file có đuôi .txt
+        String filePath = file.getAbsolutePath();
+        // Kiểm tra đuôi file:
+        if (filePath.contains(".")) {
+            String fileExtension = filePath.substring(filePath.lastIndexOf(".") + 1);
+            if (!fileExtension.equals("txt")) {
+                // Quăng lỗi nếu đuôi file không phải .txt
+                throw new MyAppException(ErrorType.WRONG_FILE_FORMAT_SAVE_LOCATION, view);
+            }
+        } else {
+            // Thêm đuôi .txt nếu người dùng không định nghĩa đuôi file
+            filePath += ".txt";
+        }
+        model.setSaveFilePath(filePath);
+        String currentKey = model.getKey();
+        if ("".equals(currentKey) || currentKey == null) {
+            throw new MyAppException(ErrorType.EMPTY_KEY_WHEN_SAVE, view);
+        }
+        loadEncryptModule();
+        boolean isSuccess = algorithm.saveToFile(filePath);
+        if (isSuccess) {
+            String message = String.format("Lưu thành công key tại đường dẫn: %s", filePath);
+            JOptionPane.showMessageDialog(view, message, "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            throw new MyAppException(ErrorType.SAVE_FILE_FAILED, view);
+        }
     }
 
     private void handleInputTextArea_LostFocus(String inputText) {
@@ -65,87 +115,88 @@ public class SymmetricScreen_Controller extends AController<SymmetricScreen_View
         }
     }
 
-    private void handlePaddingComboBox_Choose(ItemEvent e) {
-        model.setPadding(e.getItem().toString());
-    }
-
-    private void handleFileChosen(File file) {
-        model.setChooseFile(file);
-    }
-
-    private void handleKeySizeComboBox_Choose(ItemEvent e) {
-        model.setKeySize(Integer.parseInt(e.getItem().toString()));
-    }
-
     private void handleDecryptButton_Click(ActionEvent event) {
-        var IsSelectedLabel = view.getIsSelectedLabel();
         var InputTextArea = view.getInputTextArea();
+        String inputText = InputTextArea.getText();
+        if (model.getChooseFile() == null && (inputText == null || "".equals(inputText))) {
+            throw new MyAppException(ErrorType.EMPTY_INPUT_FOR_ENCRYPT, view);
+        }
+        if (model.getChooseFile() == null) {
+            _decryptText();
+        }
+        else {
+            _decryptFile();
+        }
+    }
+
+    private void _decryptFile() {
+        String currentFilePath = model.getChooseFile().getAbsolutePath();
+        {
+            int lastDotIndex = currentFilePath.lastIndexOf('.');
+            // Thêm "_encrypted" vào trước phần mở rộng
+            String baseName = currentFilePath.substring(0, lastDotIndex);
+            String extension = currentFilePath.substring(lastDotIndex); // Gồm cả dấu '.'
+            model.setSaveFilePath(baseName + "_decrypted" + extension); // tạm fix cứng
+        }
+        loadEncryptModule();
+        String saveFilePath = model.getSaveFilePath();
+        boolean isSuccess = false;
+        try {
+            isSuccess = algorithm.decryptFile(currentFilePath, saveFilePath);
+        } catch (InvalidAlgorithmParameterException exception) {
+            exception.printStackTrace();
+            throw new MyAppException(ErrorType.BAD_INPUT_ALGORITHM, view);
+        } catch (NoSuchPaddingException exception) {
+            exception.printStackTrace();
+            throw new MyAppException(ErrorType.BAD_INPUT_ALGORITHM, view);
+        } catch (NoSuchAlgorithmException exception) {
+            exception.printStackTrace();
+            throw new MyAppException(ErrorType.BAD_INPUT_ALGORITHM, view);
+        } catch (InvalidKeyException exception) {
+            exception.printStackTrace();
+            throw new MyAppException(ErrorType.BAD_INPUT_ALGORITHM, view);
+        } catch (IOException exception) {
+            exception.printStackTrace();
+            throw new MyAppException(ErrorType.BAD_INPUT_ALGORITHM, view);
+        } catch (NoSuchProviderException e) {
+            e.printStackTrace();
+            throw new MyAppException(ErrorType.UNSUPPORTED_ALGORITHM, view);
+        }
+        if (!isSuccess) {
+            throw new MyAppException(ErrorType.FILE_FAILED_TO_DECRYPT, view);
+        }
+        JOptionPane.showMessageDialog(view, "Giải mã thành công", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    private void _decryptText() {
         var OutputTextArea = view.getOutputTextArea();
-        var ModeComboBox = view.getModeComboBox();
-        var PaddingComboBox = view.getPaddingComboBox();
-        var KeyComboBox = view.getKeyComboBox();
-        var AlgorithmButton = view.getAlgorithmComboBox();
-        if (IsSelectedLabel.getText().equals("Không có file nào được chọn")
-                && (InputTextArea.getText().length() == 0 || InputTextArea.getText() == null)
-
-        ) {
-            JOptionPane.showMessageDialog(view, "Vui lòng chọn file cần giải mã hóa hoặc nhập đoạn văn bản bạn muốn giải mã hóa", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
-
-        }
-        if ( InputTextArea.getText().length() >= 1) {
-            String keyTemp = "";
-            String modeText = (String) ModeComboBox.getSelectedItem();
-            String paddingText = (String) PaddingComboBox.getSelectedItem();
-            int keySizeOutput = Integer.valueOf(KeyComboBox.getSelectedItem().toString());
-            String textInputAreaTemp = InputTextArea.getText();
-            String result = "";
-            if (AlgorithmButton.getSelectedItem().equals("AES")) {
-                result = aes.decryptText(textInputAreaTemp, modeText, paddingText);
-            }
-            if (AlgorithmButton.getSelectedItem().equals("Camellia")) {
-                result = camellia.decryptText(textInputAreaTemp, modeText, paddingText);
-            }
-            if (AlgorithmButton.getSelectedItem().equals("TripleDES")) {
-                result = tripleDES.decryptText(textInputAreaTemp, modeText, paddingText);
-            }
-            if (AlgorithmButton.getSelectedItem().equals("DES")) {
-                result = des.decryptText(textInputAreaTemp, modeText, paddingText);
-            }
-            if (AlgorithmButton.getSelectedItem().equals("IDEA")) {
-                result = idea.decryptText(textInputAreaTemp, modeText, paddingText);
-            }
+        String inputText = model.getInputText();
+        String result = "";
+        loadEncryptModule();
+        try {
+            result = algorithm.decrypt(inputText);
             OutputTextArea.setText(result);
-        }
-        if (!IsSelectedLabel.getText().equals("Không có file nào được chọn")) {
-
-            String modeText = (String) ModeComboBox.getSelectedItem();
-            String paddingText = (String) PaddingComboBox.getSelectedItem();
-
-
-            boolean result = false;
-            if (AlgorithmButton.getSelectedItem().equals("AES")) {
-                result = aes.decryptAFile(IsSelectedLabel.getText(), modeText, paddingText);
-
-            }
-            if (AlgorithmButton.getSelectedItem().equals("Camellia")) {
-                result = camellia.decryptAFile(IsSelectedLabel.getText(), modeText, paddingText);
-            }
-            if (AlgorithmButton.getSelectedItem().equals("TripleDES")) {
-                result = tripleDES.decryptAFile(IsSelectedLabel.getText(), modeText, paddingText);
-            }
-            if (AlgorithmButton.getSelectedItem().equals("DES")) {
-                result = des.decryptAFile(IsSelectedLabel.getText(), modeText, paddingText);
-            }
-            if (AlgorithmButton.getSelectedItem().equals("IDEA")) {
-                result = idea.decryptAFile(IsSelectedLabel.getText(), modeText, paddingText);
-            }
-
-            if (result) {
-                JOptionPane.showMessageDialog(view, "Giải mã hóa thành công", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
-            } else {
-                JOptionPane.showMessageDialog(view, "Giải mã hóa  thất bại", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
-            }
-
+        } catch (InvalidAlgorithmParameterException exception) {
+            exception.printStackTrace();
+            throw new MyAppException(ErrorType.BAD_INPUT_ALGORITHM, view);
+        } catch (NoSuchPaddingException exception) {
+            exception.printStackTrace();
+            throw new MyAppException(ErrorType.BAD_INPUT_ALGORITHM, view);
+        } catch (IllegalBlockSizeException exception) {
+            exception.printStackTrace();
+            throw new MyAppException(ErrorType.BAD_INPUT_ALGORITHM, view);
+        } catch (NoSuchAlgorithmException exception) {
+            exception.printStackTrace();
+            throw new MyAppException(ErrorType.BAD_INPUT_ALGORITHM, view);
+        } catch (BadPaddingException exception) {
+            exception.printStackTrace();
+            throw new MyAppException(ErrorType.BAD_INPUT_ALGORITHM, view);
+        } catch (NoSuchProviderException exception) {
+            exception.printStackTrace();
+            throw new MyAppException(ErrorType.BAD_INPUT_ALGORITHM, view);
+        } catch (InvalidKeyException exception) {
+            exception.printStackTrace();
+            throw new MyAppException(ErrorType.BAD_INPUT_ALGORITHM, view);
         }
     }
 
@@ -154,16 +205,7 @@ public class SymmetricScreen_Controller extends AController<SymmetricScreen_View
         var OutputTextArea = view.getOutputTextArea();
         String inputText = InputTextArea.getText();
         String result = "";
-        String currentMode = model.getMode();
-        String currentPadding = model.getPadding();
-        String currentAlgorithm = model.getAlgorithm();
-        String currentSecretKey = model.getKey();
-        String currentIV = model.getIv();
-        algorithm.setAlgorithm(currentAlgorithm);
-        algorithm.setMode(currentMode);
-        algorithm.setPadding(currentPadding);
-        algorithm.setSecretKey(currentSecretKey);
-        algorithm.setIvParameterSpec(currentIV);
+        loadEncryptModule();
         try {
             result = algorithm.encrypt(inputText);
             OutputTextArea.setText(result);
@@ -200,17 +242,8 @@ public class SymmetricScreen_Controller extends AController<SymmetricScreen_View
             String extension = currentFilePath.substring(lastDotIndex); // Gồm cả dấu '.'
             model.setSaveFilePath(baseName + "_encrypted" + extension); // tạm fix cứng
         }
+        loadEncryptModule();
         String saveFilePath = model.getSaveFilePath();
-        String currentMode = model.getMode();
-        String currentPadding = model.getPadding();
-        String currentAlgorithm = model.getAlgorithm();
-        String currentSecretKey = model.getKey();
-        String currentIV = model.getIv();
-        algorithm.setAlgorithm(currentAlgorithm);
-        algorithm.setMode(currentMode);
-        algorithm.setPadding(currentPadding);
-        algorithm.setSecretKey(currentSecretKey);
-        algorithm.setIvParameterSpec(currentIV);
         boolean isSuccess = false;
         try {
             isSuccess = algorithm.encryptFile(currentFilePath, saveFilePath);
@@ -231,10 +264,10 @@ public class SymmetricScreen_Controller extends AController<SymmetricScreen_View
             throw new MyAppException(ErrorType.BAD_INPUT_ALGORITHM, view);
         } catch (NoSuchProviderException e) {
             e.printStackTrace();
-            throw new MyAppException(ErrorType.UNSUPPORT_ALGORITHM, view);
+            throw new MyAppException(ErrorType.UNSUPPORTED_ALGORITHM, view);
         }
         if (!isSuccess) {
-            throw new MyAppException(ErrorType.FILE_FAILED_ENCRYPT, view);
+            throw new MyAppException(ErrorType.FILE_FAILED_TO_ENCRYPT, view);
         }
         JOptionPane.showMessageDialog(view, "Mã hóa thành công", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
     }
@@ -243,7 +276,7 @@ public class SymmetricScreen_Controller extends AController<SymmetricScreen_View
         var InputTextArea = view.getInputTextArea();
         String inputText = InputTextArea.getText();
         if (model.getChooseFile() == null && (inputText == null || "".equals(inputText))) {
-            throw new MyAppException(ErrorType.EMPTY_INPUT, view);
+            throw new MyAppException(ErrorType.EMPTY_INPUT_FOR_ENCRYPT, view);
         }
         if (model.getChooseFile() == null) {
             _encryptText();
@@ -253,65 +286,8 @@ public class SymmetricScreen_Controller extends AController<SymmetricScreen_View
         }
     }
 
-    private void handleSaveKeyButton_Click(ActionEvent event) {
-        String keyUser = view.getInputKeyTextField().getText();
-        String mode = model.getMode();
-        String algorithm = model.getAlgorithm();
-        try {
-            if (keyUser.length() == 0 || keyUser == null) {
-                view.showWarnMessage("Vui lòng nhập key");
-            } else {
-                if ("AES".equals(algorithm)) {
-                    if ("ECB".equals(mode)) {
-                        aes.loadKeyFromUser(keyUser, "AES");
-                    } else {
-                        aes.loadKeyAndIVFromUser(keyUser);
-                    }
-                }
-                if ("Camellia".equals(algorithm)) {
-                    if ("ECB".equals(mode)) {
-                        camellia.loadKeyFromUser(keyUser);
-                    } else {
-                        camellia.loadKeyAndIVFromUser(keyUser);
-                    }
-                }
-                if ("TripleDES".equals(algorithm)) {
-                    if ("ECB".equals(mode)) {
-                        tripleDES.loadKeyFromUser(keyUser);
-                    } else {
-                        tripleDES.loadKeyAndIVFromUser(keyUser);
-                    }
-                }
-                if ("DES".equals(algorithm)) {
-                    if ("ECB".equals(mode)) {
-                        des.loadKeyFromUser(keyUser);
-                    } else {
-                        des.loadKeyAndIVFromUser(keyUser);
-                    }
-                }
-                if ("IDEA".equals(algorithm)) {
-                    if ("ECB".equals(mode)) {
-                        idea.loadKeyFromUser(keyUser);
-                    } else {
-                        idea.loadKeyAndIVFromUser(keyUser);
-                    }
-                }
-                view.showInfoMessage("Lưu key thành công");
-            }
-        } catch (NoSuchAlgorithmException ex) {
-            throw new RuntimeException(ex);
-        }
-    }
-
-    private void handleInputTextAreaDocumentChange(DocumentEvent event) {
-        view.toggleChooseFileButton();
-    }
-
     private void handleAlgorithmCombobox_Choose(ItemEvent event) {
-        var AlgorithmButton = view.getAlgorithmComboBox();
-        if (AlgorithmButton.getSelectedItem() != null) {
-            model.setAlgorithm(event.getItem().toString());
-        }
+        model.setAlgorithm(event.getItem().toString());
     }
 
     private void handleModeComboBox_Choose(ItemEvent event) {
@@ -327,12 +303,24 @@ public class SymmetricScreen_Controller extends AController<SymmetricScreen_View
         }
     }
 
-    private void handleCancelFileButton_Click(ActionEvent event) {
-        model.setChooseFile(null);
-    }
+    private void loadEncryptModule() {
+        String currentAlgorithm = model.getAlgorithm();
+        String currentMode = model.getMode();
+        String currentPadding = model.getPadding();
+        String currentIV = model.getIv();
+        String currentKey = model.getKey();
 
-    private void handleFileButton_Click(ActionEvent event) {
-        view.showFileChooser();
+        algorithm.setAlgorithm(currentAlgorithm);
+        algorithm.setMode(currentMode);
+        algorithm.setPadding(currentPadding);
+        // nullable
+        if (currentKey != null) {
+            algorithm.setSecretKey(currentKey);
+        }
+        // nullable
+        if (currentIV != null) {
+            algorithm.setIvParameterSpec(currentIV);
+        }
     }
 
     private void handleGenerateKeyButton_Click(ActionEvent event) {
@@ -340,57 +328,18 @@ public class SymmetricScreen_Controller extends AController<SymmetricScreen_View
         var InputIVTextField = view.getInputIVTextField();
         String keyTemp = "";
         String iv = null;
+        loadEncryptModule();
+        int currentKeySize = model.getKeySize();
+        if (!"ECB".equals(model.getAlgorithm())) { // case này cần quan tâm IV
+            var ivSpec = algorithm.generateRandomIV();
+            iv = algorithm.parseToString(ivSpec);
+        }
         try {
-            switch (model.getAlgorithm()) {
-                case "AES" -> {
-                    if ("ECB".equals(model.getMode())) {
-                        aes.loadKey(model.getKeySize());
-                    } else {
-                        aes.loadKeyAndIV(model.getKeySize());
-                        iv = aes.getIv();
-                    }
-                    keyTemp = aes.getSecretKey().toString();
-                }
-                case "Camellia" -> {
-                    if ("ECB".equals(model.getMode())) {
-                        camellia.loadKey(model.getKeySize());
-                    } else {
-                        camellia.loadKeyAndIV(model.getKeySize(), "Camellia");
-                        iv = camellia.getIv();
-                    }
-                    keyTemp = camellia.getSecretKey().toString();
-                }
-                case "TripleDES" -> {
-                    if ("ECB".equals(model.getMode())) {
-                        tripleDES.loadKey(model.getKeySize());
-                    } else {
-                        iv = tripleDES.getIv();
-                        tripleDES.loadKeyAndIV(model.getKeySize());
-                    }
-                    keyTemp = tripleDES.getSecretKey().toString();
-                }
-                case "DES" -> {
-                    if ("ECB".equals(model.getMode())) {
-                        des.loadKey(model.getKeySize());
-                    } else {
-                        iv = des.getIv();
-                        des.loadKeyAndIV(model.getKeySize());
-                    }
-                    keyTemp = des.getSecretKey().toString();
-                }
-                case "IDEA" -> {
-                    if ("ECB".equals(model.getMode())) {
-                        idea.loadKey(model.getKeySize(), "IDEA");
-                    } else {
-                        iv = idea.getIv();
-                        idea.loadKeyAndIV(model.getKeySize(), "IDEA");
-                    }
-                    keyTemp = des.getSecretKey().toString();
-                }
-            }
+            var secretKey = algorithm.generateRandomKey(currentKeySize);
+            keyTemp = algorithm.parseToString(secretKey);
         } catch (Exception e) {
             e.printStackTrace();
-            throw new RuntimeException(e);
+            throw new MyAppException(ErrorType.UNKNOWN_ERROR, view);
         }
         if (iv != null)  {
             InputIVTextField.setText(iv);
@@ -402,11 +351,6 @@ public class SymmetricScreen_Controller extends AController<SymmetricScreen_View
 
     @Override
     protected void initialModels() {
-        aes = new AES();
-        camellia = new Camellia();
-        tripleDES = new TripleDES();
-        des = new DES();
-        idea = new IDEA();
         algorithm = new SymmetricAlgorithm();
         model = new SymmetricScreen_Model();
         model.addObserver(view);

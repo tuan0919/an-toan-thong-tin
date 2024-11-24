@@ -1,18 +1,10 @@
 package Controller;
 
-import Model.ChuKySo.ChuKySo;
-import Model.MaHoaHienDai.MaHoaBatDoiXung.RSA;
-import View.AsymmetricScreen_View;
+import Model.Algorithm.ChuKySo.ChuKySo;
 import View.SignatureScreen_View;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
 import javax.swing.*;
-import java.awt.event.ActionEvent;
 import java.io.File;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 
 public class SignatureScreen_Controller extends AController<SignatureScreen_View> {
     private ChuKySo chuKySo;

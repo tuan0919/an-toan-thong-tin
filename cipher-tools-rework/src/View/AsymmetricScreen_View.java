@@ -1,16 +1,8 @@
 package View;
 
-import Model.MaHoaHienDai.MaHoaBatDoiXung.RSA;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.util.function.Consumer;
 
 public class AsymmetricScreen_View extends AScreenView {

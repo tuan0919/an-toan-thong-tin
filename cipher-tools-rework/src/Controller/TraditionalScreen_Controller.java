@@ -1,7 +1,7 @@
 package Controller;
 
-import Model.MaHoaCoBan.CaesarCipher;
-import Model.MaHoaCoBan.SubstitutionCipher;
+import Model.Algorithm.MaHoaCoBan.CaesarCipher;
+import Model.Algorithm.MaHoaCoBan.SubstitutionCipher;
 import View.TraditionalScreen_View;
 
 public class TraditionalScreen_Controller extends AController<TraditionalScreen_View> {

@@ -1,20 +1,13 @@
 package Controller;
 
-import Model.Hash.MD5;
-import Model.Hash.SHA.SHA;
-import Model.MaHoaHienDai.MaHoaBatDoiXung.RSA;
+import Model.Algorithm.MaHoaHienDai.MaHoaBatDoiXung.RSA;
 import View.AsymmetricScreen_View;
-import View.HashScreen_View;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.swing.*;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.File;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 

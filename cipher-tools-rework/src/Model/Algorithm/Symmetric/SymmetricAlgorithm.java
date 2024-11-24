@@ -188,8 +188,11 @@ public class SymmetricAlgorithm {
         random.nextBytes(ivBytes); // Sinh ngẫu nhiên IV
         return new IvParameterSpec(ivBytes);
     }
-    public String getSecretKey() {
+    public String getSecretKeyAsString() {
         return Base64.getEncoder().encodeToString(secretKey.getEncoded());
+    }
+    public String getIVAsString() {
+        return Base64.getEncoder().encodeToString(ivParameterSpec.getIV());
     }
     public String parseToString(SecretKey secretKey) {
         return Base64.getEncoder().encodeToString(secretKey.getEncoded());

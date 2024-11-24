@@ -31,7 +31,7 @@ public class SymmetricScreen_Model implements ModelObservable {
         }
     }
 
-    static final List<String> availableModes = new ArrayList<String>() {{
+    static final List<String> availableModes = new ArrayList<>() {{
         add("ECB");
         add("CBC");
         add("CFB");
@@ -124,7 +124,11 @@ public class SymmetricScreen_Model implements ModelObservable {
     }
 
     public void setKey(String key) {
+        if ("".equals(key.trim())) key = null;
         this.key = key;
+        notifyObservers("change_key", Map.of(
+                "current_key", Optional.ofNullable(key)
+        ));
     }
 
     public String getIv() {
@@ -132,7 +136,11 @@ public class SymmetricScreen_Model implements ModelObservable {
     }
 
     public void setIv(String iv) {
+        if ("".equals(iv.trim())) iv = null;
         this.iv = iv;
+        notifyObservers("change_iv", Map.of(
+                "current_iv", Optional.ofNullable(iv)
+        ));
     }
 
     public String getInputText() {

@@ -7,6 +7,7 @@ import Util.MyUtil;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.*;
 import java.beans.PropertyChangeEvent;
@@ -27,6 +28,7 @@ public class SymmetricScreen_View extends AScreenView implements ScreenObserver 
     private JComboBox<String> AlgorithmComboBox;
     private JButton GenerateKeyButton;
     private JButton SaveKeyButton;
+    private JButton LoadKeyButton;
     private JButton ChooseFileButton;
     private JButton CancelFileButton;
     private JLabel IsSelectedLabel;
@@ -51,7 +53,8 @@ public class SymmetricScreen_View extends AScreenView implements ScreenObserver 
         PaddingComboBox = new JComboBox<>();
         KeyComboBox = new JComboBox<>();
         GenerateKeyButton = new JButton("Tạo key");
-        SaveKeyButton = new JButton("Lưu key mới nhập");
+        SaveKeyButton = new JButton("Lưu key");
+        LoadKeyButton = new JButton("Load key");
         AlgorithmComboBox = new JComboBox<>();
         ChooseFileButton = new JButton("Chọn file");
         CancelFileButton = new JButton("Hủy chọn file");
@@ -126,11 +129,18 @@ public class SymmetricScreen_View extends AScreenView implements ScreenObserver 
         gbc.anchor = GridBagConstraints.WEST;
         settingsPanel.add(GenerateKeyButton, gbc);
 
-        // Nút Lưu Key
+
+        // Panel chứa hai nút lưu và load key
+        JPanel keyPanel = new JPanel();
+        keyPanel.setLayout(new GridLayout(1,2,5,5));
+        keyPanel.add(SaveKeyButton);
+        keyPanel.add(LoadKeyButton);
+
+        // Lưu & Load Key
         gbc.gridx = 1;
         gbc.gridy = 7;
         gbc.anchor = GridBagConstraints.WEST;
-        settingsPanel.add(SaveKeyButton, gbc);
+        settingsPanel.add(keyPanel, gbc);
 
         // Panel chứa phần thuật toán và chọn file
         JPanel filePanel = new JPanel();
@@ -266,6 +276,10 @@ public class SymmetricScreen_View extends AScreenView implements ScreenObserver 
         SaveKeyButton.addActionListener(e -> callback.accept(e));
     }
 
+    public void onLoadKeyButton_Click(Consumer<ActionEvent> callback) {
+        LoadKeyButton.addActionListener(e -> callback.accept(e));
+    }
+
     public void onEncryptButton_Click(Consumer<ActionEvent> callback) {
         EncryptButton.addActionListener(e -> callback.accept(e));
     }
@@ -374,14 +388,6 @@ public class SymmetricScreen_View extends AScreenView implements ScreenObserver 
         ChooseFileButton.setEnabled(InputTextArea.getText().trim().isEmpty());
     }
 
-    public void showWarnMessage(String message) {
-        MyUtil.showWarnMessage(this, message, "Thông báo");
-    }
-
-    public void showInfoMessage(String message) {
-        MyUtil.showWarnMessage(this, message, "Thông báo");
-    }
-
     @Override
     public void update(String event, Map<String, Object> data) {
         switch (event) {
@@ -419,6 +425,18 @@ public class SymmetricScreen_View extends AScreenView implements ScreenObserver 
                     OutputTextArea.setEnabled(true);
                 }
             }
+            case "change_key" -> {
+                Optional<String> optionalKey = (Optional<String>) data.get("current_key");
+                if (optionalKey.isPresent()) {
+                    InputKeyTextField.setText(optionalKey.get());
+                }
+            }
+            case "change_iv" -> {
+                Optional<String> optionalIV = (Optional<String>) data.get("current_iv");
+                if (optionalIV.isPresent()) {
+                    InputIVTextField.setText(optionalIV.get());
+                }
+            }
         }
     }
 
@@ -429,11 +447,47 @@ public class SymmetricScreen_View extends AScreenView implements ScreenObserver 
         });
     }
 
-    public int showFileChooser() {
+    public void onSaveLocationChosen(Consumer<File> callback) {
+        PropertyChangeSupport.addPropertyChangeListener("user_choose_save_location", evt -> {
+            File currentFile = (File) evt.getNewValue();
+            callback.accept(currentFile);
+        });
+    }
+
+    public void onLoadKeyLocationChosen(Consumer<File> callback) {
+        PropertyChangeSupport.addPropertyChangeListener("user_choose_load_key_location", evt -> {
+            File currentFile = (File) evt.getNewValue();
+            callback.accept(currentFile);
+        });
+    }
+
+    public int showFileChooserForCipher() {
         int result = FileChooser.showOpenDialog(this);
         if (result == JFileChooser.APPROVE_OPTION) {
             File file = FileChooser.getSelectedFile();
             PropertyChangeSupport.firePropertyChange("user_picked_file", null, file);
+        }
+        return result;
+    }
+
+    public int showFileChooserForSaveLocation() {
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("Text Files (*.txt)", "txt");
+        FileChooser.setFileFilter(filter);
+        int result = FileChooser.showOpenDialog(this);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            File file = FileChooser.getSelectedFile();
+            PropertyChangeSupport.firePropertyChange("user_choose_save_location", null, file);
+        }
+        return result;
+    }
+
+    public int showFileChooserForLoadKey() {
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("Text Files (*.txt)", "txt");
+        FileChooser.setFileFilter(filter);
+        int result = FileChooser.showOpenDialog(this);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            File file = FileChooser.getSelectedFile();
+            PropertyChangeSupport.firePropertyChange("user_choose_load_key_location", null, file);
         }
         return result;
     }

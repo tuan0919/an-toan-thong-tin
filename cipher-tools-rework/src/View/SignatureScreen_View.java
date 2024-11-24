@@ -1,15 +1,11 @@
 package View;
 
-import Model.ChuKySo.ChuKySo;
-
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.File;
 import java.util.function.Consumer;
 
 public class SignatureScreen_View extends AScreenView {

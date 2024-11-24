@@ -1,16 +1,10 @@
 package Controller;
 
-import Model.Hash.MD5;
-import Model.Hash.SHA.SHA;
-import Model.MaHoaCoBan.CaesarCipher;
-import Model.MaHoaCoBan.SubstitutionCipher;
+import Model.Algorithm.Hash.MD5;
+import Model.Algorithm.Hash.SHA.SHA;
 import View.HashScreen_View;
-import View.TraditionalScreen_View;
 
 import javax.swing.*;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import java.awt.event.ActionListener;
 import java.io.File;
 
 public class HashScreen_Controller extends AController<HashScreen_View> {
@@ -89,9 +83,9 @@ public class HashScreen_Controller extends AController<HashScreen_View> {
                     OutputTextArea.setText(sha.hashAFile(IsSelectedFile_Label.getText(),modeTemp));
                 }
             }
-            JOptionPane.showMessageDialog(view, "Model.Hash thành công","Thông báo",JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(view, "Model.Algorithm.Hash thành công","Thông báo",JOptionPane.INFORMATION_MESSAGE);
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(view, "Model.Hash thất bại","Thông báo",JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(view, "Model.Algorithm.Hash thất bại","Thông báo",JOptionPane.INFORMATION_MESSAGE);
             throw new RuntimeException(ex);
         }
     }

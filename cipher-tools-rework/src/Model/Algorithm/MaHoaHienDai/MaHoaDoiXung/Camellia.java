@@ -64,14 +64,50 @@ public class Camellia {
             throw new RuntimeException(e);
         }
     }
-    public boolean encryptAFile(String path, String mode, String padding) {
+    public boolean encryptAFile(String path, String mode, String padding) throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException {
+        Security.addProvider(new BouncyCastleProvider());
+        if (mode.equals("ECB")) {
+            takeKeyFromTxtFile();
+            Cipher cipher = Cipher.getInstance("Camellia/ECB/" + padding);
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+            String destFile = path.substring(0, path.lastIndexOf('.')) + "DaMaHoa" + path.substring(path.lastIndexOf('.'));
+            BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(new File(path)));
+            BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(destFile));
+            CipherOutputStream cipherOutputStream = new CipherOutputStream(bufferedOutputStream, cipher);
+            byte [] byteArray = new byte[1024];
+            int bytesRead;
+            while ((bytesRead = bufferedInputStream.read(byteArray)) != -1) {
+                cipherOutputStream.write(byteArray, 0, bytesRead);
+            }
+            cipherOutputStream.close();
+            bufferedOutputStream.close();
+            bufferedInputStream.close();
 
-        try {
-            Security.addProvider(new BouncyCastleProvider());
-            if (mode.equals("ECB")) {
+            return true;
+
+        } else {
+            if (mode.equals("CBC")) {
                 takeKeyFromTxtFile();
-                Cipher cipher = Cipher.getInstance("Camellia/ECB/" + padding);
-                cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+                Cipher cipher = Cipher.getInstance("Camellia/CBC/" + padding);
+                cipher.init(Cipher.ENCRYPT_MODE, secretKey, iv);
+                String destFile = path.substring(0, path.lastIndexOf('.')) + "DaMaHoa" + path.substring(path.lastIndexOf('.'));
+                BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(new File(path)));
+                BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(destFile));
+                CipherOutputStream cipherOutputStream = new CipherOutputStream(bufferedOutputStream, cipher);
+                byte [] byteArray = new byte[1024];
+                int bytesRead;
+                while ((bytesRead = bufferedInputStream.read(byteArray)) != -1) {
+                    cipherOutputStream.write(byteArray, 0, bytesRead);
+                }
+
+                cipherOutputStream.close();
+                bufferedOutputStream.close();
+                bufferedInputStream.close();
+                return true;
+            }else{
+                takeKeyFromTxtFile();
+                Cipher cipher = Cipher.getInstance("Camellia/" + mode + "/" + padding);
+                cipher.init(Cipher.ENCRYPT_MODE, secretKey, iv);
                 String destFile = path.substring(0, path.lastIndexOf('.')) + "DaMaHoa" + path.substring(path.lastIndexOf('.'));
                 BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(new File(path)));
                 BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(destFile));
@@ -86,56 +122,7 @@ public class Camellia {
                 bufferedInputStream.close();
 
                 return true;
-
-            } else {
-                if (mode.equals("CBC")) {
-                    takeKeyFromTxtFile();
-                    Cipher cipher = Cipher.getInstance("Camellia/CBC/" + padding);
-                    cipher.init(Cipher.ENCRYPT_MODE, secretKey, iv);
-                    String destFile = path.substring(0, path.lastIndexOf('.')) + "DaMaHoa" + path.substring(path.lastIndexOf('.'));
-                    BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(new File(path)));
-                    BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(destFile));
-                    CipherOutputStream cipherOutputStream = new CipherOutputStream(bufferedOutputStream, cipher);
-                    byte [] byteArray = new byte[1024];
-                    int bytesRead;
-                    while ((bytesRead = bufferedInputStream.read(byteArray)) != -1) {
-                        cipherOutputStream.write(byteArray, 0, bytesRead);
-                    }
-
-                    cipherOutputStream.close();
-                    bufferedOutputStream.close();
-                    bufferedInputStream.close();
-                    return true;
-                }else{
-                    takeKeyFromTxtFile();
-                    Cipher cipher = Cipher.getInstance("Camellia/" + mode + "/" + padding);
-                    cipher.init(Cipher.ENCRYPT_MODE, secretKey, iv);
-                    String destFile = path.substring(0, path.lastIndexOf('.')) + "DaMaHoa" + path.substring(path.lastIndexOf('.'));
-                    BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(new File(path)));
-                    BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(destFile));
-                    CipherOutputStream cipherOutputStream = new CipherOutputStream(bufferedOutputStream, cipher);
-                    byte [] byteArray = new byte[1024];
-                    int bytesRead;
-                    while ((bytesRead = bufferedInputStream.read(byteArray)) != -1) {
-                        cipherOutputStream.write(byteArray, 0, bytesRead);
-                    }
-                    cipherOutputStream.close();
-                    bufferedOutputStream.close();
-                    bufferedInputStream.close();
-
-                    return true;
-                }
             }
-        } catch (InvalidAlgorithmParameterException e) {
-            throw new RuntimeException(e);
-        } catch (NoSuchPaddingException e) {
-            throw new RuntimeException(e);
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (InvalidKeyException e) {
-            throw new RuntimeException(e);
         }
     }
 
@@ -440,7 +427,7 @@ public class Camellia {
     public String getSecretKey() {
         return Base64.getEncoder().encodeToString(secretKey.getEncoded());
     }
-    public static void main(String[] args) throws NoSuchAlgorithmException, NoSuchProviderException {
+    public static void main(String[] args) throws NoSuchAlgorithmException, NoSuchProviderException, InvalidAlgorithmParameterException, NoSuchPaddingException, IOException, InvalidKeyException {
         Camellia camellia = new Camellia();
         String text = "Hello World";
 //        String encryptedText = null;
