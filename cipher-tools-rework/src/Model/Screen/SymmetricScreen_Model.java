@@ -11,6 +11,8 @@ public class SymmetricScreen_Model implements ModelObservable {
     private String key = null;
     private String iv;
     private int keySize;
+    private String inputText;
+    private String saveFilePath;
     private List<ScreenObserver> observers = new ArrayList<>();
 
     // Đăng ký Observer
@@ -112,6 +114,9 @@ public class SymmetricScreen_Model implements ModelObservable {
 
     public void setChooseFile(File chooseFile) {
         this.chooseFile = chooseFile;
+        notifyObservers("change_file", Map.of(
+                "file", Optional.ofNullable(chooseFile)
+        ));
     }
 
     public String getKey() {
@@ -128,6 +133,22 @@ public class SymmetricScreen_Model implements ModelObservable {
 
     public void setIv(String iv) {
         this.iv = iv;
+    }
+
+    public String getInputText() {
+        return inputText;
+    }
+
+    public void setInputText(String inputText) {
+        this.inputText = inputText;
+    }
+
+    public String getSaveFilePath() {
+        return saveFilePath;
+    }
+
+    public void setSaveFilePath(String saveFilePath) {
+        this.saveFilePath = saveFilePath;
     }
 
     public void initialize() {
