@@ -8,10 +8,14 @@ import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ItemEvent;
+import java.awt.event.*;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
+import java.io.File;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 public class SymmetricScreen_View extends AScreenView implements ScreenObserver {
@@ -31,7 +35,8 @@ public class SymmetricScreen_View extends AScreenView implements ScreenObserver 
     private JTextArea OutputTextArea;
     private JButton EncryptButton;
     private JButton DecryptButton;
-    private SymmetricScreen_Model model;
+    private JFileChooser FileChooser;
+    private PropertyChangeSupport PropertyChangeSupport;
 
     public SymmetricScreen_View() {
         super();
@@ -60,6 +65,8 @@ public class SymmetricScreen_View extends AScreenView implements ScreenObserver 
         OutputTextArea.setWrapStyleWord(true);
         EncryptButton = new JButton("Mã hóa");
         DecryptButton = new JButton("Giải mã");
+        FileChooser = new JFileChooser();
+        PropertyChangeSupport = new PropertyChangeSupport(this);
     }
 
     @Override
@@ -98,9 +105,6 @@ public class SymmetricScreen_View extends AScreenView implements ScreenObserver 
         settingsPanel.add(new JLabel("Chọn padding:"), gbc);
         gbc.gridx = 1;
         settingsPanel.add(PaddingComboBox, gbc);
-        PaddingComboBox.addItem("PKCS5Padding");
-        PaddingComboBox.addItem("ISO10126Padding");
-        PaddingComboBox.addItem("NoPadding");
 
         // Nhãn và lựa chọn giải thuật
         gbc.gridx = 0;
@@ -108,11 +112,6 @@ public class SymmetricScreen_View extends AScreenView implements ScreenObserver 
         settingsPanel.add(new JLabel("Chọn giải thuật:"), gbc);
         gbc.gridx = 1;
         settingsPanel.add(AlgorithmComboBox, gbc);
-        AlgorithmComboBox.addItem("AES");
-        AlgorithmComboBox.addItem("Camellia");
-        AlgorithmComboBox.addItem("TripleDES");
-        AlgorithmComboBox.addItem("DES");
-        AlgorithmComboBox.addItem("IDEA");
 
         // Nhãn và lựa chọn Key Size
         gbc.gridx = 0;
@@ -200,6 +199,36 @@ public class SymmetricScreen_View extends AScreenView implements ScreenObserver 
         });
     }
 
+    public void onInputKeyTextField_LostFocus(Consumer<String> callback) {
+        InputKeyTextField.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusLost(FocusEvent e) {
+                String currentText = InputKeyTextField.getText();
+                callback.accept(currentText);
+            }
+        });
+    }
+
+    public void onInputIVTextField_LostFocus(Consumer<String> callback) {
+        InputIVTextField.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusLost(FocusEvent e) {
+                String currentText = InputIVTextField.getText();
+                callback.accept(currentText);
+            }
+        });
+    }
+
+    public void onInputTextArea_LostFocus(Consumer<String> callback) {
+        InputTextArea.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusLost(FocusEvent e) {
+                String currentText = InputTextArea.getText();
+                callback.accept(currentText);
+            }
+        });
+    }
+
     public void onFileButton_Click(Consumer<ActionEvent> callback) {
         // Thêm action listener cho nút "Chọn file"
         ChooseFileButton.addActionListener(e -> {
@@ -222,6 +251,10 @@ public class SymmetricScreen_View extends AScreenView implements ScreenObserver 
 
     public void onKeySizeComboBox_Choose(Consumer<ItemEvent> callback) {
         KeyComboBox.addItemListener(e -> callback.accept(e));
+    }
+
+    public void onPaddingComboBox_Choose(Consumer<ItemEvent> callback) {
+        PaddingComboBox.addItemListener(e -> callback.accept(e));
     }
 
     public void onGenerateKeyButton_Click(Consumer<ActionEvent> callback) {
@@ -333,6 +366,10 @@ public class SymmetricScreen_View extends AScreenView implements ScreenObserver 
         return DecryptButton;
     }
 
+    public JFileChooser getFileChooser() {
+        return FileChooser;
+    }
+
     public void toggleChooseFileButton() {
         ChooseFileButton.setEnabled(InputTextArea.getText().trim().isEmpty());
     }
@@ -367,6 +404,37 @@ public class SymmetricScreen_View extends AScreenView implements ScreenObserver 
                 PaddingComboBox.setSelectedIndex(0);
                 KeyComboBox.setSelectedIndex(0);
             }
+            case "change_file" -> {
+                var optionalFile = (Optional<File>) data.get("file");
+                if (optionalFile.isPresent()) {
+                    File file = optionalFile.get();
+                    IsSelectedLabel.setText(file.getAbsolutePath()); // Cập nhật đường dẫn file
+                    // Disable cả hai JTextArea khi chọn file
+                    InputTextArea.setEnabled(false);
+                    OutputTextArea.setEnabled(false);
+                } else {
+                    IsSelectedLabel.setText("Không có file nào được chọn"); // Đặt lại nhãn về trạng thái mặc định
+                    // Enable lại cả hai JTextArea
+                    InputTextArea.setEnabled(true);
+                    OutputTextArea.setEnabled(true);
+                }
+            }
         }
+    }
+
+    public void onFileChosen(Consumer<File> callback) {
+        PropertyChangeSupport.addPropertyChangeListener("user_picked_file", evt -> {
+            File currentFile = (File) evt.getNewValue();
+            callback.accept(currentFile);
+        });
+    }
+
+    public int showFileChooser() {
+        int result = FileChooser.showOpenDialog(this);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            File file = FileChooser.getSelectedFile();
+            PropertyChangeSupport.firePropertyChange("user_picked_file", null, file);
+        }
+        return result;
     }
 }
