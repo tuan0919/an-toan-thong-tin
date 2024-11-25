@@ -2,6 +2,8 @@ package Model.Algorithm.Asymmetric;
 
 import javax.crypto.Cipher;
 import javax.crypto.NoSuchPaddingException;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -108,6 +110,76 @@ public class AsymmetricAlgorithm {
         }
     }
 
+    public void savePublicKey(String filePath) throws IOException {
+        if (publicKey == null) {
+            throw new IllegalStateException("Public key is not initialized");
+        }
+
+        // Mã hóa Public Key sang Base64
+        String publicKeyBase64 = Base64.getEncoder().encodeToString(publicKey.getEncoded());
+
+        // Ghi vào file
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
+            writer.write("Public key:\n");
+            writer.write(publicKeyBase64);
+        }
+    }
+
+    public void savePrivateKey(String filePath) throws IOException {
+        if (privateKey == null) {
+            throw new IllegalStateException("Private key is not initialized");
+        }
+
+        // Mã hóa Private Key sang Base64
+        String privateKeyBase64 = Base64.getEncoder().encodeToString(privateKey.getEncoded());
+
+        // Ghi vào file
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
+            writer.write("Private key:\n");
+            writer.write(privateKeyBase64);
+        }
+    }
+
+    public void loadPublicKey(String filePath) throws IOException, GeneralSecurityException {
+        // Đọc toàn bộ nội dung file
+        String content = Files.readString(Path.of(filePath));
+
+        // Xử lý để lấy chuỗi Base64 của Public Key
+        if (!content.startsWith("Public key:")) {
+            throw new IllegalArgumentException("Invalid public key file format");
+        }
+
+        String publicKeyBase64 = content.replace("Public key:", "").trim();
+
+        // Giải mã Public Key từ Base64
+        byte[] publicKeyBytes = BASE64_DECODER.decode(publicKeyBase64);
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        X509EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(publicKeyBytes);
+
+        // Gán Public Key
+        this.publicKey = keyFactory.generatePublic(publicKeySpec);
+    }
+
+    public void loadPrivateKey(String filePath) throws IOException, GeneralSecurityException {
+        // Đọc toàn bộ nội dung file
+        String content = Files.readString(Path.of(filePath));
+
+        // Xử lý để lấy chuỗi Base64 của Private Key
+        if (!content.startsWith("Private key:")) {
+            throw new IllegalArgumentException("Invalid private key file format");
+        }
+
+        String privateKeyBase64 = content.replace("Private key:", "").trim();
+
+        // Giải mã Private Key từ Base64
+        byte[] privateKeyBytes = BASE64_DECODER.decode(privateKeyBase64);
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        PKCS8EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(privateKeyBytes);
+
+        // Gán Private Key
+        this.privateKey = keyFactory.generatePrivate(privateKeySpec);
+    }
+
     public void loadKeyPair(String filePath) throws IOException, GeneralSecurityException {
         // Đọc toàn bộ nội dung file
         String content = Files.readString(Path.of(filePath));
@@ -134,5 +206,29 @@ public class AsymmetricAlgorithm {
         byte[] privateKeyBytes = BASE64_DECODER.decode(privateKeyBase64);
         PKCS8EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(privateKeyBytes);
         this.privateKey = keyFactory.generatePrivate(privateKeySpec);
+    }
+
+    public static void main(String[] args) throws Exception {
+        String privateKeyFile = "C:\\Users\\Nguyen Tuan\\Desktop\\privateKey.txt";
+        String publicKeyFile = "C:\\Users\\Nguyen Tuan\\Desktop\\publicKey.txt";
+        var instance = new AsymmetricAlgorithm();
+        var keyPair = instance.generateKeyPair(4096);
+        instance.privateKey = keyPair.getPrivate();
+        instance.publicKey = keyPair.getPublic();
+
+        // save key
+        instance.savePrivateKey(privateKeyFile);
+        instance.savePublicKey(publicKeyFile);
+
+        // remove key
+        instance.privateKey = null;
+        instance.publicKey = null;
+
+        // reload key
+        instance.loadPublicKey(publicKeyFile);
+        instance.loadPrivateKey(privateKeyFile);
+
+        System.out.println(instance.decryptText(instance.encryptText("THIS TEXT WILL BE ENCRYPTED BY PRIVATE KEY AND THEN DECRYPTED BY PUBLIC KEY", PrivateKey.class), PublicKey.class));
+        System.out.println(instance.decryptText(instance.encryptText("THIS TEXT WILL BE ENCRYPTED BY PUBLIC KEY AND THEN DECRYPTED BY PRIVATE KEY", PublicKey.class), PrivateKey.class));
     }
 }
