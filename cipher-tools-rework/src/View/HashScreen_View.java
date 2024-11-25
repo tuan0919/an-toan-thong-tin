@@ -7,6 +7,8 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.beans.PropertyChangeSupport;
 import java.io.File;
 import java.util.Map;
@@ -68,6 +70,15 @@ public class HashScreen_View extends AScreenView implements ScreenObserver {
     public void onSelectHashComboBox_Chosen(Consumer<String> callback) {
         SelectHash_ComboBox.addItemListener(e -> {
             callback.accept(e.getItem().toString());
+        });
+    }
+
+    public void onInputTextArea_LostFocus(Consumer<String> callback) {
+        InputTextArea.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusLost(FocusEvent e) {
+                callback.accept(InputTextArea.getText());
+            }
         });
     }
 
