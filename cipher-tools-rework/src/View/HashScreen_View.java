@@ -1,13 +1,20 @@
 package View;
 
+import Model.Screen.ScreenObserver;
+
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.beans.PropertyChangeSupport;
+import java.io.File;
+import java.util.Map;
+import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.List;
 
-public class HashScreen_View extends AScreenView {
+public class HashScreen_View extends AScreenView implements ScreenObserver {
     private JComboBox<String> SelectHash_ComboBox;
     private JButton SelectFile_Button;
     private JButton DeselectFile_Button;
@@ -20,26 +27,28 @@ public class HashScreen_View extends AScreenView {
     private JPanel SelectModeWrap_Panel;
     private JPanel OverallContentWrap_Panel;
     private JPanel ButtonWrap_Panel;
+    private JFileChooser JFileChooser;
+    private PropertyChangeSupport EventFireSupport;
 
     public HashScreen_View() {
         super();
     }
 
-    public void onInputTextArea_DocumentChange(Consumer<DocumentEvent> callback) {
+    public void onInputTextArea_DocumentChange(Consumer<Void> callback) {
         InputTextArea.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void insertUpdate(DocumentEvent e) {
-                callback.accept(e);
+                callback.accept(null);
             }
 
             @Override
             public void removeUpdate(DocumentEvent e) {
-                callback.accept(e);
+                callback.accept(null);
             }
 
             @Override
             public void changedUpdate(DocumentEvent e) {
-                callback.accept(e);
+                callback.accept(null);
             }
         });
     }
@@ -56,6 +65,12 @@ public class HashScreen_View extends AScreenView {
         HashButton.addActionListener(e -> callback.accept(e));
     }
 
+    public void onSelectHashComboBox_Chosen(Consumer<String> callback) {
+        SelectHash_ComboBox.addItemListener(e -> {
+            callback.accept(e.getItem().toString());
+        });
+    }
+
     @Override
     public void initialComponent() {
         // Khởi tạo các thành phần giao diện
@@ -64,35 +79,33 @@ public class HashScreen_View extends AScreenView {
         DeselectFile_Button = new JButton("Hủy chọn file");
         IsSelectedFile_Label = new JLabel("Không có file nào được chọn");
 
-        InputTextArea = new JTextArea(20, 35);
+        InputTextArea = new JTextArea(5, 35);
         InputTextArea.setLineWrap(true);
         InputTextArea.setWrapStyleWord(true);
-        InputTextArea.setFont(new Font("Arial", Font.PLAIN, 16));
-        InputTextArea.setForeground(Color.BLACK);
 
         InputTextWrap_ScrollPane = new JScrollPane(InputTextArea);
         InputTextWrap_ScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         InputTextWrap_ScrollPane.setBorder(BorderFactory.createTitledBorder("Nguồn"));
 
-        OutputTextArea = new JTextArea(20, 35);
+        OutputTextArea = new JTextArea(5, 35);
         OutputTextArea.setLineWrap(true);
         OutputTextArea.setWrapStyleWord(true);
-        OutputTextArea.setFont(new Font("Arial", Font.PLAIN, 16));
-        OutputTextArea.setForeground(Color.BLACK);
 
         OutputTextWrap_ScrollPane = new JScrollPane(OutputTextArea);
         OutputTextWrap_ScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         OutputTextWrap_ScrollPane.setBorder(BorderFactory.createTitledBorder("Kết quả"));
 
-        HashButton = new JButton("Hash");
+        JFileChooser = new JFileChooser();
+        EventFireSupport = new PropertyChangeSupport(this);
 
-        // Thêm các thuật toán hash vào ComboBox
-        SelectHash_ComboBox.addItem("MD5");
-        SelectHash_ComboBox.addItem("SHA-1");
-        SelectHash_ComboBox.addItem("SHA-256");
-        SelectHash_ComboBox.addItem("SHA-512");
-        SelectHash_ComboBox.addItem("SHA3-256");
-        SelectHash_ComboBox.addItem("SHA3-512");
+        HashButton = new JButton("Hash");
+    }
+
+    public void renderSelectHash_ComboBox(List<String> data) {
+        SelectHash_ComboBox.removeAllItems();
+        for (var item : data) {
+            SelectHash_ComboBox.addItem(item);
+        }
     }
 
     @Override
@@ -125,7 +138,7 @@ public class HashScreen_View extends AScreenView {
         SelectModeWrap_Panel.add(IsSelectedFile_Label, gbc);
 
         // Panel hiển thị nội dung nguồn và kết quả
-        OverallContentWrap_Panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
+        OverallContentWrap_Panel = new JPanel(new GridLayout(1,2,1,1));
         OverallContentWrap_Panel.add(InputTextWrap_ScrollPane);
         OverallContentWrap_Panel.add(OutputTextWrap_ScrollPane);
 
@@ -140,56 +153,49 @@ public class HashScreen_View extends AScreenView {
         this.add(ButtonWrap_Panel, BorderLayout.SOUTH);
     }
 
-    public JComboBox<String> getSelectHash_ComboBox() {
-        return SelectHash_ComboBox;
-    }
-
-    public JButton getSelectFile_Button() {
-        return SelectFile_Button;
-    }
-
-    public JButton getDeselectFile_Button() {
-        return DeselectFile_Button;
-    }
-
-    public JLabel getIsSelectedFile_Label() {
-        return IsSelectedFile_Label;
-    }
-
-    public JTextArea getInputTextArea() {
-        return InputTextArea;
-    }
-
-    public JTextArea getOutputTextArea() {
-        return OutputTextArea;
-    }
-
-    public JScrollPane getInputTextWrap_ScrollPane() {
-        return InputTextWrap_ScrollPane;
-    }
-
-    public JScrollPane getOutputTextWrap_ScrollPane() {
-        return OutputTextWrap_ScrollPane;
-    }
-
-    public JButton getHashButton() {
-        return HashButton;
-    }
-
-    public JPanel getSelectModeWrap_Panel() {
-        return SelectModeWrap_Panel;
-    }
-
-    public JPanel getOverallContentWrap_Panel() {
-        return OverallContentWrap_Panel;
-    }
-
-    public JPanel getButtonWrap_Panel() {
-        return ButtonWrap_Panel;
-    }
-
     public void toggleSelectFileButton() {
         // Nếu có nội dung trong textInputArea thì disable nút "Chọn file", ngược lại enable
         SelectFile_Button.setEnabled(InputTextArea.getText().trim().isEmpty());
+    }
+
+    @Override
+    public void update(String event, Map<String, Object> data) {
+        switch (event) {
+            case "first_load" -> {
+                List<String> availableAlgorithms = (List<String>) data.get("available_algorithm");
+                renderSelectHash_ComboBox(availableAlgorithms);
+            }
+            case "change_choose_file" -> {
+                Optional<File> optionalFile = (Optional<File>) data.get("current_choose_file");
+                if (optionalFile.isPresent()) {
+                    InputTextArea.setEditable(false);
+                    IsSelectedFile_Label.setText(optionalFile.get().getAbsolutePath());
+                } else {
+                    InputTextArea.setEditable(true);
+                    IsSelectedFile_Label.setText("Không có file nào được chọn");
+                }
+            }
+            case "hash_file" -> {
+                String output = (String) data.get("output");
+                OutputTextArea.setText(output);
+                OutputTextArea.setEditable(false);
+            }
+        }
+    }
+
+    public void onFileChosen(Consumer<File> callback) {
+        EventFireSupport.addPropertyChangeListener("user_choose_file", event -> {
+            File file = (File) event.getNewValue();
+            callback.accept(file);
+        });
+    }
+
+    public int openFileChooser_ForPickFile() {
+        int result = JFileChooser.showOpenDialog(this);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            File file = JFileChooser.getSelectedFile();
+            EventFireSupport.firePropertyChange("user_choose_file", null, file);
+        }
+        return result;
     }
 }
