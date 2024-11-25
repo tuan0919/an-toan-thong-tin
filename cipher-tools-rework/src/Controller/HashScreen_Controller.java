@@ -4,6 +4,8 @@ import Model.Algorithm.Hash.HashAlgorithm;
 import Model.Algorithm.Hash.MD5;
 import Model.Algorithm.Hash.SHA.SHA;
 import Model.Screen.HashScreen_Model;
+import MyException.ErrorType;
+import MyException.MyAppException;
 import View.HashScreen_View;
 
 import javax.swing.*;
@@ -26,6 +28,7 @@ public class HashScreen_Controller extends AController<HashScreen_View> {
         view.onHashButton_Click(e -> handleHashButton_Click());
         view.onFileChosen(file -> setChooseFile_FireEvent(file));
         view.onSelectHashComboBox_Chosen(algorithm -> model.setAlgorithm(algorithm));
+        view.onInputTextArea_LostFocus(input -> model.setInputText(input));
     }
 
     private void setChooseFile_FireEvent(File file) {
@@ -35,21 +38,23 @@ public class HashScreen_Controller extends AController<HashScreen_View> {
         ));
     }
 
-    private void handleSelectFileButton_Click() {
-    }
-
-    private void handleDeselectFileButton_Click() {
-    }
-
     private void handleHashButton_Click() {
         var file = model.getFile();
         String currentAlgo = model.getAlgorithm();
+        String hashText = "";
         if (file != null) {
-            String hashText = algorithm.hashFile(file.getAbsolutePath(), currentAlgo);
-            model.notifyObservers("hash_file", Map.of(
-                    "output", hashText
-            ));
+            hashText = algorithm.hashFile(file.getAbsolutePath(), currentAlgo);
         }
+        else {
+            String inputText = model.getInputText();
+            if (inputText == null || inputText.isEmpty()) {
+                throw new MyAppException(ErrorType.EMPTY_INPUT_FOR_ENCRYPT, view);
+            }
+            hashText = algorithm.hashText(inputText, currentAlgo);
+        }
+        model.notifyObservers("hash_file", Map.of(
+                "output", hashText
+        ));
     }
 
     @Override

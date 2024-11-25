@@ -1,6 +1,4 @@
 package Controller;
-
-import Model.Algorithm.MaHoaHienDai.MaHoaDoiXung.*;
 import Model.Algorithm.Symmetric.SymmetricAlgorithm;
 import Model.Screen.SymmetricScreen_Model;
 import MyException.ErrorType;

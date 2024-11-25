@@ -1,11 +1,25 @@
 package View;
 
+import Model.Screen.ScreenObserver;
+
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
+import java.awt.event.ItemListener;
+import java.beans.PropertyChangeSupport;
+import java.io.File;
+import java.security.AsymmetricKey;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.util.List;
+import java.util.Map;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-public class AsymmetricScreen_View extends AScreenView {
+public class AsymmetricScreen_View extends AScreenView implements ScreenObserver {
     private JTextField PublicKey_TextField = new JTextField(35);
     private JTextField PrivateKey_TextField = new JTextField(35);
     private JTextArea PublicKey_TextArea;
@@ -20,10 +34,12 @@ public class AsymmetricScreen_View extends AScreenView {
     private JButton SaveKey_Button;
     private JButton Encrypt_Button;
     private JButton Decrypt_Button;
-    private JComboBox<String> SelectKeySize_ComboBox;
+    private JComboBox<Integer> SelectKeySize_ComboBox;
     private JRadioButton PublicKey_RadioButton;
     private JRadioButton PrivateKey_RadioButton;
     private ButtonGroup KeyButtonGroup;
+    private JFileChooser FileChooser;
+    private PropertyChangeSupport EventFireSupport;
 
     @Override
     public void initialComponent() {
@@ -31,9 +47,17 @@ public class AsymmetricScreen_View extends AScreenView {
         PublicKey_TextField = new JTextField(35);
         PrivateKey_TextField = new JTextField(35);
         Input_TextArea = new JTextArea(10, 35);
+        Input_TextArea.setLineWrap(true);
+        Input_TextArea.setWrapStyleWord(true);
         Output_TextArea = new JTextArea(10, 35);
+        Output_TextArea.setLineWrap(true);
+        Output_TextArea.setWrapStyleWord(true);
         PrivateKey_TextArea = new JTextArea(5, 20);
         PublicKey_TextArea = new JTextArea(5, 35);
+        PublicKey_TextArea.setWrapStyleWord(true);
+        PublicKey_TextArea.setLineWrap(true);
+        PrivateKey_TextArea.setWrapStyleWord(true);
+        PrivateKey_TextArea.setLineWrap(true);
         SavePrivateKey_Button = new JButton("Lưu key");
         LoadPrivateKey_Button = new JButton("Load key");
         SavePublicKey_Button = new JButton("Lưu key");
@@ -47,12 +71,16 @@ public class AsymmetricScreen_View extends AScreenView {
         KeyButtonGroup = new ButtonGroup();
         KeyButtonGroup.add(PublicKey_RadioButton);
         KeyButtonGroup.add(PrivateKey_RadioButton);
-
+        FileChooser = new JFileChooser();
+        EventFireSupport = new PropertyChangeSupport(this);
         SelectKeySize_ComboBox = new JComboBox<>();
-        SelectKeySize_ComboBox.addItem("1024");
-        SelectKeySize_ComboBox.addItem("2048");
-        SelectKeySize_ComboBox.addItem("3072");
-        SelectKeySize_ComboBox.addItem("4096");
+    }
+
+    public void renderSelectKeySize_ComboBox(List<Integer> data) {
+        SelectKeySize_ComboBox.removeAllItems();
+        for (var item : data ) {
+            SelectKeySize_ComboBox.addItem(item);
+        }
     }
 
     @Override
@@ -179,51 +207,179 @@ public class AsymmetricScreen_View extends AScreenView {
         SaveKey_Button.addActionListener(e -> callback.accept(e));
     }
 
-    public void onEncryptButtonClick(Consumer<ActionEvent> callback) {
-        Encrypt_Button.addActionListener(e -> callback.accept(e));
+    public void onDecryptButton_Click(Consumer<ActionEvent> callback) {
+        Decrypt_Button.addActionListener(e -> callback.accept(e));
     }
 
-    public void onDecryptButtonClick(Consumer<ActionEvent> callback) {
-        Decrypt_Button.addActionListener(e -> callback.accept(e));
+    public void onSavePrivateKeyButton_Click(Consumer<Void> callback) {
+        SavePrivateKey_Button.addActionListener(e -> callback.accept(null));
+    }
+
+    public void onLoadPrivateKeyButton_Click(Consumer<Void> callback) {
+        LoadPrivateKey_Button.addActionListener(e -> callback.accept(null));
+    }
+
+    public void onSavePublicKeyButton_Click(Consumer<Void> callback) {
+        SavePublicKey_Button.addActionListener(e -> callback.accept(null));
+    }
+
+    public void onLoadPublicKeyButton_Click(Consumer<Void> callback) {
+        LoadPublicKey_Button.addActionListener(e -> callback.accept(null));
+    }
+
+    public void onChooseKeySize(BiConsumer<Integer, Integer> callback) {
+        SelectKeySize_ComboBox.addItemListener(e -> {
+            int key = (Integer) SelectKeySize_ComboBox.getSelectedItem();
+            int index = SelectKeySize_ComboBox.getSelectedIndex();
+            callback.accept(key, index);
+        });
+    }
+
+    public void onChooseUsageKey(Consumer<Class<? extends AsymmetricKey>> callback) {
+        PublicKey_RadioButton.setActionCommand("Public_Key");
+        PrivateKey_RadioButton.setActionCommand("Private_Key");
+        ItemListener listener = event -> {
+            JRadioButton sourceButton = (JRadioButton) event.getSource();
+            String cmd = sourceButton.getActionCommand();
+            var clazz = cmd.equals("Public_Key") ? PublicKey.class : PrivateKey.class;
+            callback.accept(clazz);
+        };
+        PublicKey_RadioButton.addItemListener(listener);
+        PrivateKey_RadioButton.addItemListener(listener);
     }
 
     public AsymmetricScreen_View() {
         super();
     }
 
-    public JTextField getPublicKey_TextField() {
-        return PublicKey_TextField;
+    @Override
+    public void update(String event, Map<String, Object> data) {
+        switch (event) {
+            case "first_load" -> {
+                List<Integer> initialKeySizes = (List<Integer>) data.get("available_key_size");
+                renderSelectKeySize_ComboBox(initialKeySizes);
+            }
+            case "generate_random" -> {
+                String publicKey = (String) data.get("current_public_key");
+                String privateKey = (String) data.get("current_private_key");
+                PublicKey_TextArea.setText(publicKey);
+                PrivateKey_TextArea.setText(privateKey);
+            }
+            case "load_private_key" -> {
+                String secretKey = (String) data.get("current_private_key");
+                PrivateKey_TextArea.setText(secretKey);
+            }
+            case "load_public_key" -> {
+                String secretKey = (String) data.get("current_public_key");
+                PublicKey_TextArea.setText(secretKey);
+            }
+            case "text_encrypted", "text_decrypted" -> {
+                String output = (String) data.get("current_output");
+                Output_TextArea.setText(output);
+            }
+        }
     }
 
-    public JTextField getPrivateKey_TextField() {
-        return PrivateKey_TextField;
+    public void onEncryptButton_Click(Consumer<Void> callback) {
+        Encrypt_Button.addActionListener(e -> callback.accept(null));
     }
 
-    public JTextArea getInput_TextArea() {
-        return Input_TextArea;
+    public void onInputTextArea_LostFocus(Consumer<String> callback) {
+        Input_TextArea.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusLost(FocusEvent e) {
+                callback.accept(Input_TextArea.getText());
+            }
+        });
     }
 
-    public JTextArea getOutput_TextArea() {
-        return Output_TextArea;
+    public void onPublicKeyTextArea_LostFocus(Consumer<String> callback) {
+        PublicKey_TextArea.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusLost(FocusEvent e) {
+                callback.accept(PublicKey_TextArea.getText());
+            }
+        });
     }
 
-    public JButton getGenerateKey_Button() {
-        return GenerateKey_Button;
+    public void onPrivateKeyTextArea_LostFocus(Consumer<String> callback) {
+        PrivateKey_TextArea.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusLost(FocusEvent e) {
+                callback.accept(PrivateKey_TextArea.getText());
+            }
+        });
     }
 
-    public JButton getSaveKey_Button() {
-        return SaveKey_Button;
+    public void onChooseLocation_ForSavePrivateKey(Consumer<File> callback) {
+        EventFireSupport.addPropertyChangeListener("user_choose_save_private_key_location", (event) -> {
+            File file = (File) event.getNewValue();
+            callback.accept(file);
+        });
     }
 
-    public JButton getEncrypt_Button() {
-        return Encrypt_Button;
+    public void onChooseLocation_ForLoadPrivateKey(Consumer<File> callback) {
+        EventFireSupport.addPropertyChangeListener("user_choose_load_private_key_location", (event) -> {
+            File file = (File) event.getNewValue();
+            callback.accept(file);
+        });
     }
 
-    public JButton getDecrypt_Button() {
-        return Decrypt_Button;
+    public int openJFileChooser_ForSavePrivateKey() {
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("Text Files and PEM Files (*.txt, *.pem)", "txt", "pem");
+        FileChooser.setFileFilter(filter);
+        int result = FileChooser.showSaveDialog(this);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            File file = FileChooser.getSelectedFile();
+            EventFireSupport.firePropertyChange("user_choose_save_private_key_location", null, file);
+        }
+        return result;
     }
 
-    public JComboBox<String> getSelectKeySize_ComboBox() {
-        return SelectKeySize_ComboBox;
+    public int openJFileChooser_ForLoadPrivateKey() {
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("Text Files and PEM Files (*.txt, *.pem)", "txt", "pem");
+        FileChooser.setFileFilter(filter);
+        int result = FileChooser.showOpenDialog(this);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            File file = FileChooser.getSelectedFile();
+            EventFireSupport.firePropertyChange("user_choose_load_private_key_location", null, file);
+        }
+        return result;
+    }
+
+    public void onChooseLocation_ForSavePublicKey(Consumer<File> callback) {
+        EventFireSupport.addPropertyChangeListener("user_choose_save_public_key_location", (event) -> {
+            File file = (File) event.getNewValue();
+            callback.accept(file);
+        });
+    }
+
+    public void onChooseLocation_ForLoadPublicKey(Consumer<File> callback) {
+        EventFireSupport.addPropertyChangeListener("user_choose_load_public_key_location", (event) -> {
+            File file = (File) event.getNewValue();
+            callback.accept(file);
+        });
+    }
+
+    public int openJFileChooser_ForSavePublicKey() {
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("Text Files and PEM Files (*.txt, *.pem)", "txt", "pem");
+        FileChooser.setFileFilter(filter);
+        int result = FileChooser.showSaveDialog(this);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            File file = FileChooser.getSelectedFile();
+            EventFireSupport.firePropertyChange("user_choose_save_public_key_location", null, file);
+        }
+        return result;
+    }
+
+    public int openJFileChooser_ForLoadPublicKey() {
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("Text Files and PEM Files (*.txt, *.pem)", "txt", "pem");
+        FileChooser.setFileFilter(filter);
+        int result = FileChooser.showOpenDialog(this);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            File file = FileChooser.getSelectedFile();
+            EventFireSupport.firePropertyChange("user_choose_load_public_key_location", null, file);
+        }
+        return result;
     }
 }
