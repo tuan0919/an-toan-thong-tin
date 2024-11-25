@@ -8,26 +8,45 @@ import java.util.function.Consumer;
 public class AsymmetricScreen_View extends AScreenView {
     private JTextField PublicKey_TextField = new JTextField(35);
     private JTextField PrivateKey_TextField = new JTextField(35);
+    private JTextArea PublicKey_TextArea;
+    private JTextArea PrivateKey_TextArea;
     private JTextArea Input_TextArea;
     private JTextArea Output_TextArea;
+    private JButton SavePrivateKey_Button;
+    private JButton SavePublicKey_Button;
+    private JButton LoadPrivateKey_Button;
+    private JButton LoadPublicKey_Button;
     private JButton GenerateKey_Button;
     private JButton SaveKey_Button;
     private JButton Encrypt_Button;
     private JButton Decrypt_Button;
     private JComboBox<String> SelectKeySize_ComboBox;
+    private JRadioButton PublicKey_RadioButton;
+    private JRadioButton PrivateKey_RadioButton;
+    private ButtonGroup KeyButtonGroup;
 
     @Override
     public void initialComponent() {
         // Khởi tạo các thành phần giao diện
         PublicKey_TextField = new JTextField(35);
         PrivateKey_TextField = new JTextField(35);
-        Input_TextArea = new JTextArea(20, 35);
-        Output_TextArea = new JTextArea(20, 35);
-
+        Input_TextArea = new JTextArea(10, 35);
+        Output_TextArea = new JTextArea(10, 35);
+        PrivateKey_TextArea = new JTextArea(5, 20);
+        PublicKey_TextArea = new JTextArea(5, 35);
+        SavePrivateKey_Button = new JButton("Lưu key");
+        LoadPrivateKey_Button = new JButton("Load key");
+        SavePublicKey_Button = new JButton("Lưu key");
+        LoadPublicKey_Button = new JButton("Load key");
         Encrypt_Button = new JButton("Mã hóa");
         Decrypt_Button = new JButton("Giải mã");
         GenerateKey_Button = new JButton("Tạo key");
         SaveKey_Button = new JButton("Lưu key");
+        PublicKey_RadioButton = new JRadioButton("Public key");
+        PrivateKey_RadioButton = new JRadioButton("Private key");
+        KeyButtonGroup = new ButtonGroup();
+        KeyButtonGroup.add(PublicKey_RadioButton);
+        KeyButtonGroup.add(PrivateKey_RadioButton);
 
         SelectKeySize_ComboBox = new JComboBox<>();
         SelectKeySize_ComboBox.addItem("1024");
@@ -57,6 +76,7 @@ public class AsymmetricScreen_View extends AScreenView {
 
         // Panel cho các lựa chọn và key
         JPanel panelModeAndKey = new JPanel(new GridBagLayout());
+        panelModeAndKey.setBorder(BorderFactory.createTitledBorder("Cài đặt mã hóa"));
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
         gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -87,31 +107,57 @@ public class AsymmetricScreen_View extends AScreenView {
 
         gbc.gridx = 1;
         gbc.gridy = 3;
-        panelModeAndKey.add(PublicKey_TextField, gbc);
+        JScrollPane scrollPanePublicKey = new JScrollPane(PublicKey_TextArea);
+        panelModeAndKey.add(scrollPanePublicKey, gbc);
+
+        JPanel panelPublicKeyAction = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+        panelPublicKeyAction.add(SavePublicKey_Button);
+        panelPublicKeyAction.add(LoadPublicKey_Button);
+
+        gbc.gridx = 1;
+        gbc.gridy = 4;
+        panelModeAndKey.add(panelPublicKeyAction, gbc);
 
         gbc.gridx = 0;
-        gbc.gridy = 4;
+        gbc.gridy = 5;
         panelModeAndKey.add(label6, gbc);
 
         gbc.gridx = 1;
-        gbc.gridy = 4;
-        panelModeAndKey.add(PrivateKey_TextField, gbc);
-
-        // Căn chỉnh nút "Tạo key" và "Lưu key"
-        gbc.gridx = 1;
         gbc.gridy = 5;
-        gbc.gridwidth = 2;  // Đặt gridwidth là 2 để nút chiếm toàn bộ chiều rộng
-        panelModeAndKey.add(GenerateKey_Button, gbc);
+        JScrollPane scrollPanePrivateKey = new JScrollPane(PrivateKey_TextArea);
+        panelModeAndKey.add(scrollPanePrivateKey, gbc);
+
+        JPanel panelPrivateKeyAction = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+        panelPrivateKeyAction.add(SavePrivateKey_Button);
+        panelPrivateKeyAction.add(LoadPrivateKey_Button);
 
         gbc.gridx = 1;
         gbc.gridy = 6;
+        panelModeAndKey.add(panelPrivateKeyAction, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 7;
+        panelModeAndKey.add(new JLabel("Chọn key sử dụng"), gbc);
+
+        JPanel RadioKeyButtonWrap = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        RadioKeyButtonWrap.add(PublicKey_RadioButton);
+        RadioKeyButtonWrap.add(PrivateKey_RadioButton);
+
+        gbc.gridx = 1;
+        gbc.gridy = 7;
+        panelModeAndKey.add(RadioKeyButtonWrap, gbc);
+
+        // Căn chỉnh nút "Tạo key" và "Lưu key"
+        gbc.gridx = 1;
+        gbc.gridy = 8;
         gbc.gridwidth = 2;  // Đặt gridwidth là 2 để nút chiếm toàn bộ chiều rộng
-        panelModeAndKey.add(SaveKey_Button, gbc);
+        panelModeAndKey.add(GenerateKey_Button, gbc);
 
         // Panel chứa nội dung
-        JPanel panelContent = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
-        panelContent.add(scrollPane);
-        panelContent.add(scrollPane2);
+        JPanel panelWrapTextArea = new JPanel(new GridLayout());
+
+        panelWrapTextArea.add(scrollPane);
+        panelWrapTextArea.add(scrollPane2);
 
         // Panel chứa các nút mã hóa và giải mã
         JPanel panelButton = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
@@ -121,7 +167,7 @@ public class AsymmetricScreen_View extends AScreenView {
         // Thiết lập bố cục chính
         this.setLayout(new BorderLayout(10, 10));
         this.add(panelModeAndKey, BorderLayout.NORTH);
-        this.add(panelContent, BorderLayout.CENTER);
+        this.add(panelWrapTextArea, BorderLayout.CENTER);
         this.add(panelButton, BorderLayout.SOUTH);
     }
 
