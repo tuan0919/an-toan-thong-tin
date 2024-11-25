@@ -1,7 +1,6 @@
 package Controller;
 
 import Model.Algorithm.Asymmetric.AsymmetricAlgorithm;
-import Model.Algorithm.MaHoaHienDai.MaHoaBatDoiXung.RSA;
 import Model.Screen.AsymmetricScreen_Model;
 import MyException.ErrorType;
 import MyException.MyAppException;
@@ -30,8 +29,6 @@ public class AsymmetricScreen_Controller extends AController<AsymmetricScreen_Vi
     @Override
     protected void initialCallbacks() {
         view.onGenerateKeyButtonClick(event -> handleGenerateKeyButtonClick(event));
-        view.onDecryptButtonClick(event -> handleDecryptButtonClick(event));
-        view.onEncryptButtonClick(event -> handleEncryptButtonClick(event));
         view.onSaveKeyButton_Click(event -> handleSaveKeyButton_Click(event));
         view.onChooseUsageKey(clazz -> model.setUsingKey(clazz));
         view.onChooseKeySize((size, index) -> model.setKeySize(size));
@@ -43,6 +40,11 @@ public class AsymmetricScreen_Controller extends AController<AsymmetricScreen_Vi
         view.onChooseLocation_ForSavePrivateKey(file -> handleOnChooseLocation_ForSavePrivateKey(file));
         view.onChooseLocation_ForSavePublicKey(file -> handleOnChooseLocation_ForSavePublicKey(file));
         view.onChooseLocation_ForLoadPublicKey(file -> handleOnChooseLocation_ForLoadPublicKey(file));
+        view.onInputTextArea_LostFocus(text -> model.setInputText(text));
+        view.onPrivateKeyTextArea_LostFocus(text -> model.setPrivateKey(text));
+        view.onPublicKeyTextArea_LostFocus(text -> model.setPublicKey(text));
+        view.onEncryptButton_Click(_ -> handleEncryptButtonClick());
+        view.onDecryptButton_Click(_ -> handleDecryptButtonClick());
     }
 
     private void handleOnChooseLocation_ForLoadPrivateKey(File file) {
@@ -167,12 +169,52 @@ public class AsymmetricScreen_Controller extends AController<AsymmetricScreen_Vi
 
     }
 
-    private void handleEncryptButtonClick(ActionEvent event) {
-
+    private void handleEncryptButtonClick() {
+        loadEncryptModule();
+        String inputText = model.getInputText();
+        String output = algorithm.encryptText(inputText, model.getUsingKey());
+        model.notifyObservers("text_encrypted", Map.of(
+                "current_output", output
+        ));
     }
 
-    private void handleDecryptButtonClick(ActionEvent event) {
+    private void handleDecryptButtonClick() {
+        loadEncryptModule();
+        String input = model.getInputText();
+        String output = null;
+        try {
+            output = algorithm.decryptText(input, model.getUsingKey());
+            model.notifyObservers("text_decrypted", Map.of(
+                    "current_output", output
+            ));
+        } catch (NoSuchPaddingException e) {
+            e.printStackTrace();
+            throw new MyAppException(ErrorType.BAD_INPUT_ALGORITHM, view);
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            throw new MyAppException(ErrorType.BAD_INPUT_ALGORITHM, view);
+        } catch (InvalidKeyException e) {
+            e.printStackTrace();
+            throw new MyAppException(ErrorType.BAD_INPUT_ALGORITHM, view);
+        } catch (IllegalBlockSizeException e) {
+            e.printStackTrace();
+            throw new MyAppException(ErrorType.BAD_INPUT_ALGORITHM, view);
+        } catch (BadPaddingException e) {
+            e.printStackTrace();
+            throw new MyAppException(ErrorType.BAD_INPUT_ALGORITHM, view);
+        }
+    }
 
+    public void loadEncryptModule() {
+        try {
+            String privateKeyStr = model.getPrivateKey();
+            String publicKeyStr = model.getPublicKey();
+            algorithm.setPrivateKey(privateKeyStr);
+            algorithm.setPublicKey(publicKeyStr);
+        } catch (GeneralSecurityException e) {
+            e.printStackTrace();
+            throw new MyAppException(ErrorType.UNKNOWN_ERROR, view);
+        }
     }
 
     private void handleGenerateKeyButtonClick(ActionEvent event) {

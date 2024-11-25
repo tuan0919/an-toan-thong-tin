@@ -1,6 +1,8 @@
 package Model.Algorithm.Asymmetric;
 
+import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -44,6 +46,14 @@ public class AsymmetricAlgorithm {
             throw new IllegalStateException("Public key is not initialized");
         }
         return BASE64_ENCODER.encodeToString(publicKey.getEncoded());
+    }
+
+    public void setPublicKey(PublicKey publicKey) {
+        this.publicKey = publicKey;
+    }
+
+    public void setPrivateKey(PrivateKey privateKey) {
+        this.privateKey = privateKey;
     }
 
     // Đặt Public Key từ chuỗi Base64
@@ -90,24 +100,20 @@ public class AsymmetricAlgorithm {
         }
     }
 
-    public String decryptText(String text, Class<? extends Key> clazz) {
-        try {
-            Cipher cipher;
-            if (clazz == PublicKey.class) {
-                if (publicKey == null) throw new IllegalStateException("Public key is not initialized");
-                cipher = createInstance(Cipher.DECRYPT_MODE, publicKey);
-            } else if (clazz == PrivateKey.class) {
-                if (privateKey == null) throw new IllegalStateException("Private key is not initialized");
-                cipher = createInstance(Cipher.DECRYPT_MODE, privateKey);
-            } else {
-                throw new IllegalArgumentException("Unsupported key type: " + clazz.getName());
-            }
-
-            byte[] decryptedBytes = cipher.doFinal(BASE64_DECODER.decode(text));
-            return new String(decryptedBytes);
-        } catch (Exception e) {
-            throw new RuntimeException("Error while decrypting text", e);
+    public String decryptText(String text, Class<? extends Key> clazz) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
+        Cipher cipher;
+        if (clazz == PublicKey.class) {
+            if (publicKey == null) throw new IllegalStateException("Public key is not initialized");
+            cipher = createInstance(Cipher.DECRYPT_MODE, publicKey);
+        } else if (clazz == PrivateKey.class) {
+            if (privateKey == null) throw new IllegalStateException("Private key is not initialized");
+            cipher = createInstance(Cipher.DECRYPT_MODE, privateKey);
+        } else {
+            throw new IllegalArgumentException("Unsupported key type: " + clazz.getName());
         }
+
+        byte[] decryptedBytes = cipher.doFinal(BASE64_DECODER.decode(text));
+        return new String(decryptedBytes);
     }
 
     public void savePublicKey(String filePath) throws IOException {
