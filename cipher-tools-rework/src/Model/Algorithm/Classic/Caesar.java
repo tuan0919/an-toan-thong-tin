@@ -8,12 +8,12 @@ public class Caesar {
     private int key;
 
     public int generateKey(Alphabet language) {
-        this.alphabet = language.getAlphabet();
+        this.alphabet = language.alphabet();
         return new Random().nextInt(alphabet.length());
     }
 
     public void loadKey(int key, Alphabet language) {
-        this.alphabet = language.getAlphabet();
+        this.alphabet = language.alphabet();
         this.key = key % alphabet.length();
     }
 

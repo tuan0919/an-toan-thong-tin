@@ -13,17 +13,17 @@ public class Affine {
     }
 
     public void loadKey(int a, int b, Alphabet language) {
-        if (gcd(a, language.getAlphabet().length()) != 1) {
+        if (gcd(a, language.alphabet().length()) != 1) {
             throw new IllegalArgumentException("Key 'a' must be coprime with the length of the alphabet.");
         }
         this.a = a;
         this.b = b;
-        this.alphabet = language.getAlphabet();
+        this.alphabet = language.alphabet();
         this.m = alphabet.length();
     }
 
     public void generateKey(Alphabet language) {
-        this.alphabet = language.getAlphabet();
+        this.alphabet = language.alphabet();
         this.m = alphabet.length();
 
         Random random = new Random();

@@ -12,13 +12,13 @@ public class Vigenere {
     }
 
     public void loadKey(String key, Alphabet language) {
-        this.alphabet = language.getAlphabet();
+        this.alphabet = language.alphabet();
         this.m = alphabet.length();
         this.key = key.toUpperCase();
     }
 
     public String generateKey(int length, Alphabet language) {
-        this.alphabet = language.getAlphabet();
+        this.alphabet = language.alphabet();
 
         Random random = new Random();
         StringBuilder key = new StringBuilder();

@@ -3,6 +3,7 @@ package Model.Algorithm.Classic;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.stream.Stream;
 
 public class Substitution {
 
@@ -16,7 +17,7 @@ public class Substitution {
     }
 
     public void generateKey(Alphabet language) {
-        this.alphabet = language.getAlphabet();
+        this.alphabet = language.alphabet();
 
         StringBuilder shuffledAlphabet = new StringBuilder(alphabet);
         Random random = new Random();
@@ -83,7 +84,7 @@ public class Substitution {
 
     public static void main(String[] args) {
         String plainTextEn = "HELLO WORLD!";
-        String plainTextVi = "CHÀO THẾ GIỚI!";
+        String plainTextVi = "á à ả ò ó o!";
 
         // Substitution cipher for English
         Substitution substitutionEn = new Substitution();
@@ -98,5 +99,14 @@ public class Substitution {
         String cipherTextVi = substitutionVi.encrypt(plainTextVi);
         System.out.println("Vietnamese Cipher Text: " + cipherTextVi);
         System.out.println("Decrypted Vietnamese: " + substitutionVi.decrypt(cipherTextVi));
+        System.out.println("used alphabet: "+substitutionVi.alphabet);
+        String test = "aăâbcdđeêghiklmnọôơpqrstuưvxyáàảãạăắằẳẵặâấầẩẫậéèẻẽẹêếềểễệíìỉĩịóòỏõọôốồổỗộơớờởỡợúùủũụưứừửữựýỳỷỹỵ";
+        System.out.println();
+        for (var c : test.toCharArray()) {
+            System.out.print(Character.toUpperCase(c));
+        }
+        Character character = test.charAt(2);
+        System.out.println();
+        System.out.println(character == 'â');
     }
 }
