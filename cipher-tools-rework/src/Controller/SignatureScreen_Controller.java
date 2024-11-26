@@ -1,62 +1,29 @@
 package Controller;
 
+import Model.Algorithm.Asymmetric.AsymmetricAlgorithm;
+import Model.Algorithm.Hash.HashAlgorithm;
+import Model.Screen.SignatureScreen_Model;
 import View.SignatureScreen_View;
 
-import javax.swing.*;
-import java.io.File;
-
 public class SignatureScreen_Controller extends AController<SignatureScreen_View> {
+    private SignatureScreen_Model model;
+    private HashAlgorithm hashAlgorithm;
+    private AsymmetricAlgorithm asymmetricAlgorithm;
     public SignatureScreen_Controller(SignatureScreen_View view) {
         super(view);
     }
 
     @Override
     protected void initialCallbacks() {
-        view.onSourceTextArea_DocumentChange(e -> handleSourceTextArea_DocumentChange());
-        view.onSelectFileButton_Click(e -> handleSelectFileButton_Click());
-        view.onDeselectFileButton_Click(e -> handleDeselectFileButton_Click());
-        view.onOutputTextArea_DocumentChange(e -> handleOutputTextArea_DocumentChange());
-        view.onSelectFileButton2_Click(e -> handleSelectFileButton2_Click());
-        view.onDeselectFileButton2_Click(e -> handleDeselectFileButton2_Click());
-        view.onCreateSignatureButton_Click(e -> handleCreateSignatureButton_Click());
-        view.onCheckSignatureButton_Click(e -> handleCheckSignatureButton_Click());
-    }
-
-    private void handleCheckSignatureButton_Click() {
-
-    }
-
-    private void handleCreateSignatureButton_Click() {
-
-    }
-
-    private void handleDeselectFileButton2_Click() {
-
-    }
-
-    private void handleSelectFileButton2_Click() {
-
-    }
-
-    private void handleOutputTextArea_DocumentChange() {
-
-    }
-
-    private void handleDeselectFileButton_Click() {
-
-    }
-
-    private void handleSourceTextArea_DocumentChange() {
-
-    }
-
-    private void handleSelectFileButton_Click() {
 
     }
 
     @Override
     protected void initialModels() {
-
+        hashAlgorithm = new HashAlgorithm();
+        asymmetricAlgorithm = new AsymmetricAlgorithm();
+        model = new SignatureScreen_Model();
+        model.addObserver(view);
     }
 
 }
