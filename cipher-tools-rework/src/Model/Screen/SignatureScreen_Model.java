@@ -16,6 +16,9 @@ public class SignatureScreen_Model implements ModelObservable {
     private String privateKey;
     private Class<? extends AsymmetricKey> usingKey;
     private String inputSignature;
+    private String inputText;
+    private int keySize;
+    private String algorithm;
     static List<String> availableAlgorithm = new ArrayList<>(){{
         add("MD5");
         add("SHA-1");
@@ -48,11 +51,11 @@ public class SignatureScreen_Model implements ModelObservable {
         return inputSignature;
     }
 
-    public static List<String> getAvailableAlgorithm() {
+    public List<String> getAvailableAlgorithm() {
         return availableAlgorithm;
     }
 
-    public static List<Integer> getAvailableKeySize() {
+    public List<Integer> getAvailableKeySize() {
         return availableKeySize;
     }
 
@@ -84,8 +87,32 @@ public class SignatureScreen_Model implements ModelObservable {
         this.inputSignature = inputSignature;
     }
 
+    public int getKeySize() {
+        return keySize;
+    }
+
+    public void setKeySize(int keySize) {
+        this.keySize = keySize;
+    }
+
     public File getFile() {
         return file;
+    }
+
+    public String getAlgorithm() {
+        return algorithm;
+    }
+
+    public void setAlgorithm(String algorithm) {
+        this.algorithm = algorithm;
+    }
+
+    public String getInputText() {
+        return inputText;
+    }
+
+    public void setInputText(String inputText) {
+        this.inputText = inputText;
     }
 
     // Đăng ký Observer
