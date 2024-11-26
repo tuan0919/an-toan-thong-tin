@@ -1,21 +1,28 @@
 package View;
 
 import Model.Screen.ScreenObserver;
+import Model.Screen.SignatureScreen_Model;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import java.awt.*;
-import java.awt.event.ActionEvent;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
+import java.awt.event.ItemListener;
 import java.beans.PropertyChangeSupport;
+import java.io.File;
+import java.security.AsymmetricKey;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.List;
 
 public class SignatureScreen_View extends AScreenView implements ScreenObserver {
     private JComboBox<String> HashAlgorithm_ComboBox;
     private JComboBox<Integer> KeySize_ComboBox;
+    private JLabel ChosenFilePath_Label;
     private JButton GenerateKey_Button,
             SavePublicKey_Button,
             LoadPublicKey_Button,
@@ -39,6 +46,87 @@ public class SignatureScreen_View extends AScreenView implements ScreenObserver 
     private JSplitPane MainSplitter_SplitPane;
     private JFileChooser UserFileChosen_FileChooser;
     private PropertyChangeSupport EventFire_Support;
+
+    public void onInputFileChosen(Consumer<File> callback) {
+        EventFire_Support.addPropertyChangeListener("input_file_chosen", event -> {
+            callback.accept((File) event.getNewValue());
+        });
+    }
+
+    public void onLoadFileButton_Click(Consumer<Void> callback) {
+        LoadFile_Button.addActionListener(_ -> callback.accept(null));
+    }
+
+    public void onCheckingSignatureButton_Click(Consumer<Void> callback) {
+        CheckSignature_Button.addActionListener(_ -> callback.accept(null));
+    }
+
+    public void onChangeSignatureInputText(Consumer<String> callback) {
+        Signature_TextArea.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusLost(FocusEvent e) {
+                String signatureText = Signature_TextArea.getText();
+                if (signatureText != null && signatureText.length() > 0) {
+                    callback.accept(Signature_TextArea.getText());
+                }
+            }
+        });
+    }
+
+    public void onChooseUsageKey(Consumer<Class<? extends AsymmetricKey>> callback) {
+        ChooseUsageKey_RadioButtons[0].setActionCommand("Public_Key");
+        ChooseUsageKey_RadioButtons[1].setActionCommand("Private_Key");
+        ItemListener listener = event -> {
+            JRadioButton sourceButton = (JRadioButton) event.getSource();
+            String cmd = sourceButton.getActionCommand();
+            var clazz = cmd.equals("Public_Key") ? PublicKey.class : PrivateKey.class;
+            callback.accept(clazz);
+        };
+        ChooseUsageKey_RadioButtons[0].addItemListener(listener);
+        ChooseUsageKey_RadioButtons[1].addItemListener(listener);
+    }
+
+    public void onGenerateKeyButton_Click(Consumer<Void> callback) {
+        GenerateKey_Button.addActionListener(_ -> callback.accept(null));
+    }
+
+    public void onChangeInputType(Consumer<Integer> callback) {
+        ChooseInputType_RadioButtons[0].setActionCommand("file");
+        ChooseInputType_RadioButtons[1].setActionCommand("text");
+        ItemListener listener = (e) -> {
+            callback.accept(ChooseInputType_RadioButtons[0].isSelected() ?
+                    SignatureScreen_Model.INPUT_FILE : SignatureScreen_Model.INPUT_TEXT);
+        };
+        ChooseInputType_RadioButtons[0].addItemListener(listener);
+        ChooseInputType_RadioButtons[1].addItemListener(listener);
+    }
+
+    public void onCreateSignatureButton_Click(Consumer<Void> callback) {
+        CreateSignature_Button.addActionListener(_ -> callback.accept(null));
+    }
+
+    public void onChooseAlgorithm_ComboBox(Consumer<String> callback) {
+        HashAlgorithm_ComboBox.addItemListener(e -> {
+            callback.accept(HashAlgorithm_ComboBox.getSelectedItem().toString());
+        });
+    }
+
+    public void onInputTextChange(Consumer<String> callback) {
+        InputText_TextArea.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusLost(FocusEvent e) {
+                callback.accept(InputText_TextArea.getText());
+            }
+        });
+    }
+
+    public void onChooseKeySize_ComboBox(Consumer<Integer> callback) {
+        KeySize_ComboBox.addItemListener(e -> {
+            int selectedIndex = KeySize_ComboBox.getSelectedIndex();
+            callback.accept(KeySize_ComboBox.getItemAt(selectedIndex));
+        });
+    }
+
     @Override
     public void initialComponent() {
         HashAlgorithm_ComboBox = new JComboBox<>();
@@ -64,6 +152,7 @@ public class SignatureScreen_View extends AScreenView implements ScreenObserver 
                 new JRadioButton("File"),
                 new JRadioButton("Văn bản"),
         };
+        ChosenFilePath_Label = new JLabel("Chưa có file nào được chọn");
         SignatureNavigator_TabbedPane = new JTabbedPane();
         UserFileChosen_FileChooser = new JFileChooser();
         EventFire_Support = new PropertyChangeSupport(this);
@@ -114,6 +203,10 @@ public class SignatureScreen_View extends AScreenView implements ScreenObserver 
                 InputText_TextArea.setRows(5);
                 InputText_TextArea.setLineWrap(true);
                 InputText_TextArea.setWrapStyleWord(true);
+                InputText_TextArea.addPropertyChangeListener("change_visible", e -> {
+                    boolean isShow = (boolean) e.getNewValue();
+                    scrollPane.setVisible(isShow);
+                });
             }
 
             JPanel PanelFileWrapper = new JPanel(); {
@@ -121,11 +214,10 @@ public class SignatureScreen_View extends AScreenView implements ScreenObserver 
                 PanelFileWrapper.setLayout(layout);
                 PanelFileWrapper.add(LoadFile_Button);
                 PanelFileWrapper.add(DeselectFile_Button);
+                PanelFileWrapper.add(ChosenFilePath_Label);
             }
             AlgorithmSettingsPanel.add(scrollPane, gbc);
             AlgorithmSettingsPanel.add(PanelFileWrapper, gbc);
-            LoadFile_Button.setVisible(false);
-            DeselectFile_Button.setVisible(false);
         }
 
         gbc.gridy = 2;
@@ -311,6 +403,53 @@ public class SignatureScreen_View extends AScreenView implements ScreenObserver 
 
     @Override
     public void update(String event, Map<String, Object> data) {
-
+        switch (event) {
+            case "first_load" -> {
+                List<String> algorithms = (List<String>) data.get("available_algorithm");
+                List<Integer> keySizes = (List<Integer>) data.get("available_key_size");
+                for (String algorithm : algorithms) {
+                    HashAlgorithm_ComboBox.addItem(algorithm);
+                }
+                for (int keySize : keySizes) {
+                    KeySize_ComboBox.addItem(keySize);
+                }
+            }
+            case "generated_key_pair" -> {
+                String privateKey = (String) data.get("generated_private_key");
+                String publicKey = (String) data.get("generated_public_key");
+                PrivateKey_TextArea.setText(privateKey);
+                PublicKey_TextArea.setText(publicKey);
+            }
+            case "change_input_mode" -> {
+                int currentInputMode = (int) data.get("current_input_mode");
+                if (currentInputMode == SignatureScreen_Model.INPUT_FILE) {
+                    InputText_TextArea.firePropertyChange("change_visible", true, false);
+                    LoadFile_Button.setVisible(true);
+                    DeselectFile_Button.setVisible(true);
+                    if (!ChooseInputType_RadioButtons[0].isSelected()) {
+                        ChooseInputType_RadioButtons[0].setSelected(true);
+                    }
+                } else {
+                    InputText_TextArea.firePropertyChange("change_visible", false, true);
+                    LoadFile_Button.setVisible(false);
+                    DeselectFile_Button.setVisible(false);
+                    if (!ChooseInputType_RadioButtons[1].isSelected()) {
+                        ChooseInputType_RadioButtons[1].setSelected(true);
+                    }
+                }
+            }
+            case "created_signature" -> {
+                String signature = (String) data.get("signature_created");
+                OutputText_TextArea.setText(signature);
+            }
+            case "open_file_chooser_for_chosen_file" -> {
+                int result = UserFileChosen_FileChooser.showOpenDialog(this);
+                if (result == JFileChooser.APPROVE_OPTION) {
+                    var file = UserFileChosen_FileChooser.getSelectedFile();
+                    EventFire_Support.firePropertyChange("input_file_chosen", null, file);
+                    ChosenFilePath_Label.setText(file.getAbsolutePath());
+                }
+            }
+        }
     }
 }
