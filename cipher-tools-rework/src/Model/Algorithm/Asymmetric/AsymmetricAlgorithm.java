@@ -80,24 +80,20 @@ public class AsymmetricAlgorithm {
         return keyPair;
     }
 
-    public String encryptText(String text, Class<? extends Key> clazz) {
-        try {
-            Cipher cipher;
-            if (clazz == PublicKey.class) {
-                if (publicKey == null) throw new IllegalStateException("Public key is not initialized");
-                cipher = createInstance(Cipher.ENCRYPT_MODE, publicKey);
-            } else if (clazz == PrivateKey.class) {
-                if (privateKey == null) throw new IllegalStateException("Private key is not initialized");
-                cipher = createInstance(Cipher.ENCRYPT_MODE, privateKey);
-            } else {
-                throw new IllegalArgumentException("Unsupported key type: " + clazz.getName());
-            }
-
-            byte[] encryptedBytes = cipher.doFinal(text.getBytes());
-            return BASE64_ENCODER.encodeToString(encryptedBytes);
-        } catch (Exception e) {
-            throw new RuntimeException("Error while encrypting text", e);
+    public String encryptText(String text, Class<? extends Key> clazz) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
+        Cipher cipher;
+        if (clazz == PublicKey.class) {
+            if (publicKey == null) throw new IllegalStateException("Public key is not initialized");
+            cipher = createInstance(Cipher.ENCRYPT_MODE, publicKey);
+        } else if (clazz == PrivateKey.class) {
+            if (privateKey == null) throw new IllegalStateException("Private key is not initialized");
+            cipher = createInstance(Cipher.ENCRYPT_MODE, privateKey);
+        } else {
+            throw new IllegalArgumentException("Unsupported key type: " + clazz.getName());
         }
+
+        byte[] encryptedBytes = cipher.doFinal(text.getBytes());
+        return BASE64_ENCODER.encodeToString(encryptedBytes);
     }
 
     public String decryptText(String text, Class<? extends Key> clazz) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {

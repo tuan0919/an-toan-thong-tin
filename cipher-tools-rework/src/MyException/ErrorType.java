@@ -6,7 +6,7 @@ public enum ErrorType {
     EMPTY_INPUT_FOR_ENCRYPT("Thông báo", "Vui lòng chọn file cần mã hóa hoặc nhập đoạn văn bản bạn muốn mã hóa", JOptionPane.WARNING_MESSAGE),
     EMPTY_INPUT_FOR_DECRYPT("Thông báo", "Vui lòng chọn file cần giải mã hoặc nhập đoạn văn bản bạn muốn giải mã", JOptionPane.WARNING_MESSAGE),
     UNKNOWN_ERROR("Lỗi", "Something went wrong.", JOptionPane.ERROR_MESSAGE),
-    BAD_INPUT_ALGORITHM("Lỗi", "Input cho module mã hóa bị sai", JOptionPane.ERROR_MESSAGE),
+    BAD_INPUT_ALGORITHM("Mã hóa hoặc giải mã thất bại", "Thiết lập thuật toán không hợp lệ. \nVui lòng kiểm tra lại.", JOptionPane.ERROR_MESSAGE),
     FILE_FAILED_TO_ENCRYPT("Thông báo", "Mã hóa không thành công", JOptionPane.WARNING_MESSAGE),
     FILE_FAILED_TO_DECRYPT("Thông báo", "Giải mã không thành công", JOptionPane.WARNING_MESSAGE),
     BAD_INPUT_FOR_NO_PADDING("Cảnh báo", "Ở chế độ NoPadding, văn bản cần phải có số byte là bội số của 8", JOptionPane.WARNING_MESSAGE),

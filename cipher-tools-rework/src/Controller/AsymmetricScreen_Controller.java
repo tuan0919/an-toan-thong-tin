@@ -172,7 +172,25 @@ public class AsymmetricScreen_Controller extends AController<AsymmetricScreen_Vi
     private void handleEncryptButtonClick() {
         loadEncryptModule();
         String inputText = model.getInputText();
-        String output = algorithm.encryptText(inputText, model.getUsingKey());
+        String output = null;
+        try {
+            output = algorithm.encryptText(inputText, model.getUsingKey());
+        } catch (NoSuchPaddingException e) {
+            e.printStackTrace();
+            throw new MyAppException(ErrorType.BAD_INPUT_ALGORITHM, view);
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            throw new MyAppException(ErrorType.BAD_INPUT_ALGORITHM, view);
+        } catch (InvalidKeyException e) {
+            e.printStackTrace();
+            throw new MyAppException(ErrorType.BAD_INPUT_ALGORITHM, view);
+        } catch (IllegalBlockSizeException e) {
+            e.printStackTrace();
+            throw new MyAppException(ErrorType.BAD_INPUT_ALGORITHM, view);
+        } catch (BadPaddingException e) {
+            e.printStackTrace();
+            throw new MyAppException(ErrorType.BAD_INPUT_ALGORITHM, view);
+        }
         model.notifyObservers("text_encrypted", Map.of(
                 "current_output", output
         ));
