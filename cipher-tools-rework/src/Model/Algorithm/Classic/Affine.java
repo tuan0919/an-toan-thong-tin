@@ -13,17 +13,17 @@ public class Affine {
     }
 
     public void loadKey(int a, int b, Alphabet language) {
-        if (gcd(a, language.alphabet().length()) != 1) {
+        if (gcd(a, language.getAlphabet().length()) != 1) {
             throw new IllegalArgumentException("Key 'a' must be coprime with the length of the alphabet.");
         }
         this.a = a;
         this.b = b;
-        this.alphabet = language.alphabet();
+        this.alphabet = language.getAlphabet();
         this.m = alphabet.length();
     }
 
     public void generateKey(Alphabet language) {
-        this.alphabet = language.alphabet();
+        this.alphabet = language.getAlphabet();
         this.m = alphabet.length();
 
         Random random = new Random();
@@ -90,7 +90,7 @@ public class Affine {
 
     public static void main(String[] args) {
         String plainTextEn = "KHOA CONG NGHE THONG TIN";
-        String plainTextVi = "CHÀO THẾ GIỚI";
+        String plainTextVi = "Nguyễn quốc anh tuấn";
 
         // Affine cipher for English
         Affine affineEn = new Affine();

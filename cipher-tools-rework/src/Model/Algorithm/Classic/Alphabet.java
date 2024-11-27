@@ -1,15 +1,30 @@
 package Model.Algorithm.Classic;
 
-public record Alphabet(String alphabet) {
-    public static final Alphabet EN = new Alphabet("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-    public static final Alphabet VN = new Alphabet(
-            "AĂÂBCDĐEÊGHIKLMNOÔƠPQRSTUƯVXY"
-                    + "aăâbcdđeêghiklmnoôơpqrstuưvxy"
-                    + "ÁÀẢÃẠẮẰẲẴẶẤẦẨẪẬÉÈẺẼẸÊẾỀỂỄỆ"
-                    + "ÍÌỈĨỊÓÒỎÕỌÔỐỒỔỖỘƠỚỜỞỠỢÚÙỦŨỤƯỨỪỬỮỰ"
-                    + "ÝỲỶỸỴ"
-                    + "áàảãạăắằẳẵặâấầẩẫậéèẻẽẹêếềểễệ"
-                    + "íìỉĩịóòỏõọôốồổỗộơớờởỡợúùủũụưứừửữự"
-                    + "ýỳỷỹỵ");
+import java.util.Arrays;
 
+public enum Alphabet {
+    EN("ABCDEFGHIJKLMNOPQRSTUVWXYZ"),
+    VN("AĂÂBCDĐEÊGHIKLMNOÔƠPQRSTUƯVXY");
+
+    private final String alphabet;
+
+    Alphabet(String alphabet) {
+        this.alphabet = alphabet;
+    }
+
+    public String getAlphabet() {
+        return alphabet;
+    }
+
+    public static String[] getAllAlphabets() {
+        return Arrays.stream(values())
+                .map(Alphabet::getAlphabet)
+                .toArray(String[]::new);
+    }
+
+    public static String[] getAllNameAlphabets() {
+        return Arrays.stream(values())
+                .map(Enum::name)
+                .toArray(String[]::new);
+    }
 }

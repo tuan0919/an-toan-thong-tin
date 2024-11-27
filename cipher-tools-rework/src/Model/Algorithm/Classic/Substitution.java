@@ -17,7 +17,7 @@ public class Substitution {
     }
 
     public void generateKey(Alphabet language) {
-        this.alphabet = language.alphabet();
+        this.alphabet = language.getAlphabet();
 
         StringBuilder shuffledAlphabet = new StringBuilder(alphabet);
         Random random = new Random();
