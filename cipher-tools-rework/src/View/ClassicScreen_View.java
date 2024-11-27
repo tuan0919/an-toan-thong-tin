@@ -119,13 +119,11 @@ public class TraditionalScreen_View extends AScreenView {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
         gbc.gridy = 0; {
-            gbc.weightx = 0.3;
             gbc.gridx = 0;
             gbc.fill = GridBagConstraints.HORIZONTAL;
             gbc.anchor = GridBagConstraints.WEST;
             AlgorithmSettings.add(new JLabel("Chọn thuật toán:"), gbc);
 
-            gbc.weightx = 0.5;
             gbc.gridx = 1;
             gbc.anchor = GridBagConstraints.WEST;
             gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -213,16 +211,18 @@ public class TraditionalScreen_View extends AScreenView {
             gbc.weightx = 1;
             gbc.gridwidth = GridBagConstraints.REMAINDER;
             AlgorithmSettings.add(wrapper, gbc);
+            wrapper.setVisible(false);
         }
         gbc.gridy = 2; {
             gbc.gridx = 0;
             gbc.anchor = GridBagConstraints.WEST;
-            gbc.fill = GridBagConstraints.NONE;
-            gbc.weightx = 0;
+            gbc.fill = GridBagConstraints.HORIZONTAL;
+            gbc.gridwidth = 1;
             AlgorithmSettings.add(new JLabel("Chọn bảng alphabet:"), gbc);
 
             gbc.weightx = 1;
             gbc.gridx = 1;
+            gbc.gridwidth = 1;
             gbc.fill = GridBagConstraints.HORIZONTAL;
             AlgorithmSettings.add(AlphabetChoose_ComboBox, gbc);
         }
@@ -246,6 +246,7 @@ public class TraditionalScreen_View extends AScreenView {
             wrapper.add(LoadKeyAB_Button);
             wrapper.add(SaveKeyAB_Button);
             AlgorithmSettings.add(wrapper, gbc);
+            wrapper.setVisible(false);
         }
         gbc.gridy = 4; {
             gbc.gridx = 0;
@@ -277,6 +278,7 @@ public class TraditionalScreen_View extends AScreenView {
             gbc.gridx = 0;
             gbc.anchor = GridBagConstraints.EAST;
             gbc.insets.top = 1;
+            gbc.gridwidth = GridBagConstraints.REMAINDER;
             var wrapper = new JPanel(new FlowLayout(FlowLayout.RIGHT));
             wrapper.add(LoadKeyCipherText_Button);
             wrapper.add(SaveKeyCipherText_Button);
@@ -299,12 +301,14 @@ public class TraditionalScreen_View extends AScreenView {
             wrapper.add(SaveKeyShift_Button);
             wrapper.add(GenerateKeyShift_Button);
             AlgorithmSettings.add(wrapper, gbc);
+            wrapper.setVisible(false);
         }
         gbc.gridy = 8; {
             gbc.gridx = 0;
             gbc.anchor = GridBagConstraints.WEST;
             gbc.insets.bottom = 1;
-            AlgorithmSettings.add(new JLabel("Khóa mã hóa:"), gbc);
+            var label = new JLabel("Khóa mã hóa:");
+            AlgorithmSettings.add(label, gbc);
 
             gbc.gridx = 1;
             gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -313,6 +317,8 @@ public class TraditionalScreen_View extends AScreenView {
             }
             // reset
             gbc.insets.bottom = 5;
+            VigenereKey_TextField.setVisible(false);
+            label.setVisible(false);
         }
         gbc.gridy = 9; {
             gbc.gridx = 0;
@@ -326,6 +332,7 @@ public class TraditionalScreen_View extends AScreenView {
             AlgorithmSettings.add(wrapper, gbc);
             //reset
             gbc.insets.top = 5;
+            wrapper.setVisible(false);
         }
 
         OverallContentWrap_Panel.add(InputTextWrap_ScrollPane);
