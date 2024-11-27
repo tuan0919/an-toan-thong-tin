@@ -39,8 +39,19 @@ public class TraditionalScreen_View extends AScreenView {
     private JTextField[] InputKeyAB_TextField;
     private JButton LoadKeyAB_Button;
     private JButton SaveKeyAB_Button;
+    private JButton LoadKeyCipherText_Button;
+    private JButton SaveKeyCipherText_Button;
+    private JButton GenerateKeyCipherText_Button;
     private JTextField PlainTextAlphabet_TextField;
     private JTextField CipherTextAlphabet_TextField;
+    private JTextField ShiftKey_TextField;
+    private JButton LoadKeyShift_Button;
+    private JButton SaveKeyShift_Button;
+    private JButton GenerateKeyShift_Button;
+    private JTextField VigenereKey_TextField;
+    private JButton LoadVigenereKey_Button;
+    private JButton SaveVigenereKey_Button;
+    private JButton GenerateVigenerateKey_Button;
 
     public TraditionalScreen_View() {
         super();
@@ -84,6 +95,17 @@ public class TraditionalScreen_View extends AScreenView {
         SaveKeyAB_Button = new JButton("Lưu key");
         PlainTextAlphabet_TextField = new JTextField();
         CipherTextAlphabet_TextField = new JTextField();
+        LoadKeyCipherText_Button = new JButton("Load");
+        SaveKeyCipherText_Button = new JButton("Lưu");
+        GenerateKeyCipherText_Button = new JButton("Tạo ngẫu nhiên");
+        ShiftKey_TextField = new JTextField();
+        LoadKeyShift_Button = new JButton("Load");
+        SaveKeyShift_Button = new JButton("Lưu");
+        GenerateKeyShift_Button = new JButton("Tạo ngẫu nhiên");
+        VigenereKey_TextField = new JTextField();
+        LoadVigenereKey_Button = new JButton("Load");
+        SaveVigenereKey_Button = new JButton("Lưu");
+        GenerateVigenerateKey_Button = new JButton("Tạo ngẫu nhiên");
     }
 
     @Override
@@ -225,6 +247,87 @@ public class TraditionalScreen_View extends AScreenView {
             wrapper.add(SaveKeyAB_Button);
             AlgorithmSettings.add(wrapper, gbc);
         }
+        gbc.gridy = 4; {
+            gbc.gridx = 0;
+            gbc.anchor = GridBagConstraints.WEST;
+            AlgorithmSettings.add(new JLabel("Alphabet gốc:"), gbc);
+
+            gbc.gridx = 1;
+            gbc.fill = GridBagConstraints.HORIZONTAL;
+            AlgorithmSettings.add(PlainTextAlphabet_TextField, gbc); {
+                PlainTextAlphabet_TextField.setEditable(false);
+                PlainTextAlphabet_TextField.setText("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+            }
+        };
+        gbc.gridy = 5; {
+            gbc.gridx = 0;
+            gbc.anchor = GridBagConstraints.WEST;
+            gbc.insets.bottom = 1;
+            AlgorithmSettings.add(new JLabel("Alphabet thay thế:"), gbc);
+
+            gbc.gridx = 1;
+            gbc.fill = GridBagConstraints.HORIZONTAL;
+            AlgorithmSettings.add(CipherTextAlphabet_TextField, gbc); {
+                CipherTextAlphabet_TextField.setText("zyxwvutsrqponmlkjihgfedcba");
+            }
+            // reset
+            gbc.insets.bottom = 5;
+        }
+        gbc.gridy = 6; {
+            gbc.gridx = 0;
+            gbc.anchor = GridBagConstraints.EAST;
+            gbc.insets.top = 1;
+            var wrapper = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+            wrapper.add(LoadKeyCipherText_Button);
+            wrapper.add(SaveKeyCipherText_Button);
+            wrapper.add(GenerateKeyCipherText_Button);
+
+            AlgorithmSettings.add(wrapper, gbc);
+            //reset
+            gbc.insets.top = 5;
+        }
+        gbc.gridy = 7; {
+            gbc.gridx = 0;
+            gbc.anchor = GridBagConstraints.WEST;
+            var wrapper = new JPanel(new FlowLayout(FlowLayout.LEFT));
+            wrapper.add(new JLabel("Dịch chuyển ("), gbc);
+            wrapper.add(ShiftKey_TextField); {
+                ShiftKey_TextField.setColumns(2);
+            }
+            wrapper.add(new JLabel(") kí tự alphabet "));
+            wrapper.add(LoadKeyShift_Button);
+            wrapper.add(SaveKeyShift_Button);
+            wrapper.add(GenerateKeyShift_Button);
+            AlgorithmSettings.add(wrapper, gbc);
+        }
+        gbc.gridy = 8; {
+            gbc.gridx = 0;
+            gbc.anchor = GridBagConstraints.WEST;
+            gbc.insets.bottom = 1;
+            AlgorithmSettings.add(new JLabel("Khóa mã hóa:"), gbc);
+
+            gbc.gridx = 1;
+            gbc.fill = GridBagConstraints.HORIZONTAL;
+            AlgorithmSettings.add(VigenereKey_TextField, gbc); {
+                VigenereKey_TextField.setText("zyxwvutsrqponmlkjihgfedcba");
+            }
+            // reset
+            gbc.insets.bottom = 5;
+        }
+        gbc.gridy = 9; {
+            gbc.gridx = 0;
+            gbc.anchor = GridBagConstraints.EAST;
+            gbc.insets.top = 1;
+            var wrapper = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+            wrapper.add(LoadVigenereKey_Button);
+            wrapper.add(SaveVigenereKey_Button);
+            wrapper.add(GenerateVigenerateKey_Button);
+
+            AlgorithmSettings.add(wrapper, gbc);
+            //reset
+            gbc.insets.top = 5;
+        }
+
         OverallContentWrap_Panel.add(InputTextWrap_ScrollPane);
         OverallContentWrap_Panel.add(OutputTextWrap_ScrollPane);
 
