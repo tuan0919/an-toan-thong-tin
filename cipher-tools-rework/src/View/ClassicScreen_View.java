@@ -1,26 +1,23 @@
 package View;
 
+import Model.Algorithm.Classic.Alphabet;
+import Model.Screen.ClassicScreen_Model;
+import Model.Screen.ScreenObserver;
 import Util.MyUtil;
 import View.Component.MatrixTable_View;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.TableColumnModelEvent;
-import javax.swing.event.TableColumnModelListener;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableColumn;
-import javax.swing.table.TableColumnModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
+import java.util.Map;
 import java.util.function.Consumer;
 
-public class TraditionalScreen_View extends AScreenView {
+public class ClassicScreen_View extends AScreenView implements ScreenObserver {
     private JComboBox<String> AlgorithmSelector_ComboBox;
     private JTextArea InputTextArea;
     private JTextArea OutputTextArea;
@@ -52,8 +49,9 @@ public class TraditionalScreen_View extends AScreenView {
     private JButton LoadVigenereKey_Button;
     private JButton SaveVigenereKey_Button;
     private JButton GenerateVigenerateKey_Button;
+    private PropertyChangeSupport EventFire_Support;
 
-    public TraditionalScreen_View() {
+    public ClassicScreen_View() {
         super();
     }
 
@@ -106,6 +104,39 @@ public class TraditionalScreen_View extends AScreenView {
         LoadVigenereKey_Button = new JButton("Load");
         SaveVigenereKey_Button = new JButton("Lưu");
         GenerateVigenerateKey_Button = new JButton("Tạo ngẫu nhiên");
+        EventFire_Support = new PropertyChangeSupport(this);
+    }
+
+    public void onChangeAlphabet(Consumer<String> callback) {
+        var lostFocus = new FocusAdapter() {
+            @Override
+            public void focusLost(FocusEvent e) {
+                callback.accept(PlainTextAlphabet_TextField.getText());
+            }
+        };
+        AlphabetChoose_ComboBox.addItemListener(event -> {
+            int index = AlphabetChoose_ComboBox.getSelectedIndex();
+            if (index == 0) {
+                callback.accept(Alphabet.EN.getAlphabet());
+                PlainTextAlphabet_TextField.setText(Alphabet.EN.getAlphabet());
+                PlainTextAlphabet_TextField.addFocusListener(lostFocus);
+                PlainTextAlphabet_TextField.setEditable(false);
+            } else if (index == 1) {
+                callback.accept(Alphabet.VN.getAlphabet());
+                PlainTextAlphabet_TextField.setText(Alphabet.VN.getAlphabet());
+                PlainTextAlphabet_TextField.addFocusListener(lostFocus);
+                PlainTextAlphabet_TextField.setEditable(false);
+            } else {
+                PlainTextAlphabet_TextField.setEditable(true);
+                PlainTextAlphabet_TextField.addFocusListener(lostFocus);
+            }
+        });
+    }
+
+    public void onChangeAlgorithm(Consumer<String> callback) {
+        AlgorithmSelector_ComboBox.addItemListener(event -> {
+            callback.accept(AlgorithmSelector_ComboBox.getSelectedItem().toString());
+        });
     }
 
     @Override
@@ -129,7 +160,6 @@ public class TraditionalScreen_View extends AScreenView {
             gbc.fill = GridBagConstraints.HORIZONTAL;
             AlgorithmSettings.add(AlgorithmSelector_ComboBox, gbc);
         }
-
         gbc.gridy = 1; {
             Integer[][] data = new Integer[15][15]; // Ma trận 5x5
             for (int i = 0; i < data.length; i++) {
@@ -211,7 +241,10 @@ public class TraditionalScreen_View extends AScreenView {
             gbc.weightx = 1;
             gbc.gridwidth = GridBagConstraints.REMAINDER;
             AlgorithmSettings.add(wrapper, gbc);
-            wrapper.setVisible(false);
+            EventFire_Support.addPropertyChangeListener("change_algorithm", evt -> {
+                String algorithm = (String) evt.getNewValue();
+                wrapper.setVisible(algorithm.equals(ClassicScreen_Model.HILL_ALGORITHM));
+            });
         }
         gbc.gridy = 2; {
             gbc.gridx = 0;
@@ -229,8 +262,20 @@ public class TraditionalScreen_View extends AScreenView {
         gbc.gridy = 3; {
             gbc.gridx = 0;
             gbc.anchor = GridBagConstraints.WEST;
+            AlgorithmSettings.add(new JLabel("Alphabet gốc:"), gbc);
+
+            gbc.gridx = 1;
+            gbc.fill = GridBagConstraints.HORIZONTAL;
+            AlgorithmSettings.add(PlainTextAlphabet_TextField, gbc); {
+                PlainTextAlphabet_TextField.setEditable(false);
+                PlainTextAlphabet_TextField.setText("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+            }
+        };
+        gbc.gridy = 4; {
+            gbc.gridx = 0;
+            gbc.anchor = GridBagConstraints.WEST;
             gbc.weightx = 0;
-            gbc.fill = GridBagConstraints.REMAINDER;
+            gbc.gridwidth = GridBagConstraints.REMAINDER;
             var wrapper = new JPanel(new FlowLayout());
             wrapper.add(new JLabel("Hệ số k ("));
             wrapper.add(InputKeyAB_TextField[0]); {
@@ -246,26 +291,18 @@ public class TraditionalScreen_View extends AScreenView {
             wrapper.add(LoadKeyAB_Button);
             wrapper.add(SaveKeyAB_Button);
             AlgorithmSettings.add(wrapper, gbc);
-            wrapper.setVisible(false);
+            EventFire_Support.addPropertyChangeListener("change_algorithm", evt -> {
+                String algorithm = (String) evt.getNewValue();
+                wrapper.setVisible(algorithm.equals(ClassicScreen_Model.AFFINE_ALGORITHM));
+            });
         }
-        gbc.gridy = 4; {
-            gbc.gridx = 0;
-            gbc.anchor = GridBagConstraints.WEST;
-            AlgorithmSettings.add(new JLabel("Alphabet gốc:"), gbc);
-
-            gbc.gridx = 1;
-            gbc.fill = GridBagConstraints.HORIZONTAL;
-            AlgorithmSettings.add(PlainTextAlphabet_TextField, gbc); {
-                PlainTextAlphabet_TextField.setEditable(false);
-                PlainTextAlphabet_TextField.setText("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-            }
-        };
-        gbc.gridy = 5; {
+        {
+            gbc.gridy = 5;
             gbc.gridx = 0;
             gbc.anchor = GridBagConstraints.WEST;
             gbc.insets.bottom = 1;
-            AlgorithmSettings.add(new JLabel("Alphabet thay thế:"), gbc);
-
+            var label = new JLabel("Alphabet thay thế:");
+            AlgorithmSettings.add(label, gbc);
             gbc.gridx = 1;
             gbc.fill = GridBagConstraints.HORIZONTAL;
             AlgorithmSettings.add(CipherTextAlphabet_TextField, gbc); {
@@ -273,8 +310,7 @@ public class TraditionalScreen_View extends AScreenView {
             }
             // reset
             gbc.insets.bottom = 5;
-        }
-        gbc.gridy = 6; {
+            gbc.gridy = 6;
             gbc.gridx = 0;
             gbc.anchor = GridBagConstraints.EAST;
             gbc.insets.top = 1;
@@ -283,11 +319,17 @@ public class TraditionalScreen_View extends AScreenView {
             wrapper.add(LoadKeyCipherText_Button);
             wrapper.add(SaveKeyCipherText_Button);
             wrapper.add(GenerateKeyCipherText_Button);
-
             AlgorithmSettings.add(wrapper, gbc);
             //reset
             gbc.insets.top = 5;
-        }
+
+            EventFire_Support.addPropertyChangeListener("change_algorithm", evt -> {
+                String algorithm = (String) evt.getNewValue();
+                label.setVisible(algorithm.equals(ClassicScreen_Model.SUBSTITUTION_ALGORITHM));
+                CipherTextAlphabet_TextField.setVisible(algorithm.equals(ClassicScreen_Model.SUBSTITUTION_ALGORITHM));
+                wrapper.setVisible(algorithm.equals(ClassicScreen_Model.SUBSTITUTION_ALGORITHM));
+            });
+        } // hàng 5 và 6
         gbc.gridy = 7; {
             gbc.gridx = 0;
             gbc.anchor = GridBagConstraints.WEST;
@@ -302,8 +344,13 @@ public class TraditionalScreen_View extends AScreenView {
             wrapper.add(GenerateKeyShift_Button);
             AlgorithmSettings.add(wrapper, gbc);
             wrapper.setVisible(false);
+            EventFire_Support.addPropertyChangeListener("change_algorithm", evt -> {
+                String algorithm = (String) evt.getNewValue();
+                wrapper.setVisible(algorithm.equals(ClassicScreen_Model.CAESAR_ALGORITHM));
+            });
         }
-        gbc.gridy = 8; {
+        {
+            gbc.gridy = 8;
             gbc.gridx = 0;
             gbc.anchor = GridBagConstraints.WEST;
             gbc.insets.bottom = 1;
@@ -317,10 +364,8 @@ public class TraditionalScreen_View extends AScreenView {
             }
             // reset
             gbc.insets.bottom = 5;
-            VigenereKey_TextField.setVisible(false);
-            label.setVisible(false);
-        }
-        gbc.gridy = 9; {
+
+            gbc.gridy = 9;
             gbc.gridx = 0;
             gbc.anchor = GridBagConstraints.EAST;
             gbc.insets.top = 1;
@@ -332,9 +377,13 @@ public class TraditionalScreen_View extends AScreenView {
             AlgorithmSettings.add(wrapper, gbc);
             //reset
             gbc.insets.top = 5;
-            wrapper.setVisible(false);
-        }
-
+            EventFire_Support.addPropertyChangeListener("change_algorithm", evt -> {
+                String algorithm = (String) evt.getNewValue();
+                wrapper.setVisible(algorithm.equals(ClassicScreen_Model.VIGENERE_ALGORITHM));
+                label.setVisible(algorithm.equals(ClassicScreen_Model.VIGENERE_ALGORITHM));
+                VigenereKey_TextField.setVisible(algorithm.equals(ClassicScreen_Model.VIGENERE_ALGORITHM));
+            });
+        } // hàng 8 và 9
         OverallContentWrap_Panel.add(InputTextWrap_ScrollPane);
         OverallContentWrap_Panel.add(OutputTextWrap_ScrollPane);
 
@@ -357,5 +406,19 @@ public class TraditionalScreen_View extends AScreenView {
 
     public void onDecryptButton_Click(Consumer<ActionEvent> callback) {
         DecryptButton.addActionListener(e -> callback.accept(e));
+    }
+
+    @Override
+    public void update(String event, Map<String, Object> data) {
+        switch (event) {
+            case "change_algorithm" -> {
+                String algorithm = (String) data.get("algorithm");
+                String selectedAlgorithm = AlgorithmSelector_ComboBox.getSelectedItem().toString();
+                if (!algorithm.equals(selectedAlgorithm)) {
+                    AlgorithmSelector_ComboBox.setSelectedItem(algorithm);
+                }
+                EventFire_Support.firePropertyChange("change_algorithm", null, algorithm);
+            }
+        }
     }
 }

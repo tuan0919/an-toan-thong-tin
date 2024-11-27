@@ -1,30 +1,36 @@
 package Controller;
 
-import View.TraditionalScreen_View;
+import Model.Screen.ClassicScreen_Model;
+import View.ClassicScreen_View;
 
-public class TraditionalScreen_Controller extends AController<TraditionalScreen_View> {
+import java.util.Map;
 
-
-    public TraditionalScreen_Controller(TraditionalScreen_View view) {
+public class ClassicScreen_Controller extends AController<ClassicScreen_View> {
+    private ClassicScreen_Model model;
+    public ClassicScreen_Controller(ClassicScreen_View view) {
         super(view);
     }
 
     @Override
     protected void initialCallbacks() {
-        view.onDecryptButton_Click(e -> handleEncrypt());
-        view.onEncryptButton_Click(e -> handleDecrypt());
+        view.onChangeAlgorithm(algorithmKey -> handleChangeAlgorithm(algorithmKey));
+        view.onChangeAlphabet(alphabet -> model.setAlphabet(alphabet));
+    }
+
+    private void handleChangeAlgorithm(String algorithm) {
+        model.setAlgorithm(algorithm);
+        model.notifyObservers("change_algorithm", Map.of(
+                "algorithm", algorithm
+        ));
     }
 
     @Override
     protected void initialModels() {
-
+        this.model = new ClassicScreen_Model();
+        model.addObserver(view);
+        model.notifyObservers("change_algorithm", Map.of(
+                "algorithm", ClassicScreen_Model.AFFINE_ALGORITHM
+        ));
     }
 
-    private void handleEncrypt() {
-
-    }
-
-    private void handleDecrypt() {
-
-    }
 }
