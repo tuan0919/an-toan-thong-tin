@@ -3,6 +3,8 @@ package View;
 import Model.Algorithm.Classic.Alphabet;
 import Model.Screen.ClassicScreen_Model;
 import Model.Screen.ScreenObserver;
+import MyException.ErrorType;
+import MyException.MyAppException;
 import Util.MyUtil;
 import View.Component.MatrixTable_View;
 
@@ -12,9 +14,11 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.Map;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class ClassicScreen_View extends AScreenView implements ScreenObserver {
@@ -161,12 +165,6 @@ public class ClassicScreen_View extends AScreenView implements ScreenObserver {
             AlgorithmSettings.add(AlgorithmSelector_ComboBox, gbc);
         }
         gbc.gridy = 1; {
-            Integer[][] data = new Integer[15][15]; // Ma trận 5x5
-            for (int i = 0; i < data.length; i++) {
-                for (int j = 0; j < data.length; j++) {
-                    data[i][j] = i * data.length + j + 1; // Điền số từ 1 đến 25
-                }
-            }
             JPanel wrapper = new JPanel(new GridBagLayout()); {
                 var gbc2 = new GridBagConstraints();
                 gbc2.insets = new Insets(0, 5, 0, 5);
@@ -179,7 +177,6 @@ public class ClassicScreen_View extends AScreenView implements ScreenObserver {
                 gbc2.anchor = GridBagConstraints.WEST;
                 MatrixInput_Table.setMinCellSize(50);
                 MatrixInput_Table.setViewPortSize(200);
-                MatrixInput_Table.loadModel(data);
                 var tableWrap = new JPanel(new GridLayout());
                 tableWrap.add(MatrixInput_Table);
                 JScrollPane scrollPane = new JScrollPane(tableWrap);
@@ -201,11 +198,15 @@ public class ClassicScreen_View extends AScreenView implements ScreenObserver {
 
                 JPanel PanelRow1 = new JPanel(new FlowLayout(FlowLayout.LEFT));
                 PanelRow1.add(new JLabel("("));
-                PanelRow1.add(MatrixSize_TextField[0]);
-                MatrixSize_TextField[0].setColumns(1);
+                PanelRow1.add(MatrixSize_TextField[0]); {
+                    MatrixSize_TextField[0].setColumns(1);
+                    MatrixSize_TextField[0].setHorizontalAlignment(SwingConstants.CENTER);
+                }
                 PanelRow1.add(new JLabel("x"));
-                PanelRow1.add(MatrixSize_TextField[1]);
-                MatrixSize_TextField[1].setColumns(1);
+                PanelRow1.add(MatrixSize_TextField[1]); {
+                    MatrixSize_TextField[1].setColumns(1);
+                    MatrixSize_TextField[1].setHorizontalAlignment(SwingConstants.CENTER);
+                }
                 PanelRow1.add(new JLabel(")"));
                 wrapper.add(PanelRow1, gbc2);
 
@@ -225,9 +226,12 @@ public class ClassicScreen_View extends AScreenView implements ScreenObserver {
                 JTextArea txtArea = new JTextArea(); {
                     txtArea.setEditable(false);
                     txtArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
-                    txtArea.setText(MyUtil.formatMatrix(data));
                     txtArea.setColumns(30);
                     txtArea.setRows(5);
+                    EventFire_Support.addPropertyChangeListener("change_matrix_key", evt -> {
+                        String matrixString = (String) evt.getNewValue();
+                        txtArea.setText(matrixString);
+                    });
                 }
                 JScrollPane outputMatrix_ScrollPane = new JScrollPane(txtArea); {
                     outputMatrix_ScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
@@ -400,12 +404,69 @@ public class ClassicScreen_View extends AScreenView implements ScreenObserver {
         this.add(CipherContentWrap_Panel, BorderLayout.SOUTH);
     }
 
-    public void onEncryptButton_Click(Consumer<ActionEvent> callback) {
-        EncryptButton.addActionListener(e -> callback.accept(e));
+    public record MatrixCell(int row, int column, int data) { }
+
+    public void onGenerateMatrixKey(Consumer<Integer> callback) {
+        CreateMatrix_Button.addActionListener(x -> callback.accept(9));
     }
 
-    public void onDecryptButton_Click(Consumer<ActionEvent> callback) {
-        DecryptButton.addActionListener(e -> callback.accept(e));
+    public void onInputTextChange(Consumer<String> callback) {
+        InputTextArea.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusLost(FocusEvent e) {
+                callback.accept(InputTextArea.getText());
+            }
+        });
+    }
+
+    public void onEncryptButton_Click(Consumer<Void> callback) {
+        EncryptButton.addActionListener(e -> callback.accept(null));
+    }
+
+    public void onDecryptButton_Click(Consumer<Void> callback) {
+        DecryptButton.addActionListener(e -> callback.accept(null));
+    }
+
+    public void onChangeMatrixSize(Consumer<Integer> callback) {
+        FocusListener listener = new FocusAdapter() {
+            @Override
+            public void focusLost(FocusEvent e) {
+                JTextField txtField = (JTextField) e.getSource();
+                boolean isMatch = false;
+                if (txtField.getText().length() > 0) {
+                    isMatch = txtField.getText().matches("^\\d$");
+                }
+                if (!isMatch) {
+                    MatrixSize_TextField[0].setText("");
+                    MatrixSize_TextField[1].setText("");
+                    throw new MyAppException(ErrorType.WRONG_MATRIX_SIZE, ClassicScreen_View.this);
+                }
+                Integer size = Integer.parseInt(txtField.getText());
+                if (size <= 0 || size >= 10) {
+                    MatrixSize_TextField[0].setText("");
+                    MatrixSize_TextField[1].setText("");
+                    throw new MyAppException(ErrorType.WRONG_MATRIX_SIZE, ClassicScreen_View.this);
+                }
+                MatrixSize_TextField[0].setText(txtField.getText());
+                MatrixSize_TextField[1].setText(txtField.getText());
+                callback.accept(size);
+            }
+        };
+        for (var txtField : MatrixSize_TextField) txtField.addFocusListener(listener);
+    }
+
+    public void onMatrixCellChange(BiConsumer<MatrixCell, Integer[][]> callback) {
+        MatrixInput_Table.addTableModelChangeListener((event, data) -> {
+            System.out.println("onMatrixCellChange");
+            int row = event.getFirstRow();
+            int col = event.getColumn();
+            Integer[][] dataCopy = new Integer[data.length][];
+            for (int i = 0; i < data.length; i++) {
+                dataCopy[i] = data[i].clone();
+            }
+            MatrixCell cell = new MatrixCell(row, col, dataCopy[row][col]);
+            callback.accept(cell, dataCopy);
+        });
     }
 
     @Override
@@ -418,6 +479,25 @@ public class ClassicScreen_View extends AScreenView implements ScreenObserver {
                     AlgorithmSelector_ComboBox.setSelectedItem(algorithm);
                 }
                 EventFire_Support.firePropertyChange("change_algorithm", null, algorithm);
+            }
+            case "change_matrix_key" -> {
+                String matrixString = (String) data.get("matrix_as_string");
+                EventFire_Support.firePropertyChange("change_matrix_key", null, matrixString);
+                MatrixInput_Table.loadModel((Integer[][]) data.get("matrix"));
+            }
+            case "alphabet_change" -> {
+                int alphabetIndex = (int) data.get("alphabet_index");
+                if (AlphabetChoose_ComboBox.getSelectedIndex() != alphabetIndex) {
+                    AlphabetChoose_ComboBox.setSelectedIndex(alphabetIndex);
+                }
+            }
+            case "encrypted" -> {
+                String cipherText = (String) data.get("cipher_text");
+                OutputTextArea.setText(cipherText);
+            }
+            case "decrypted" -> {
+                String plainText = (String) data.get("plain_text");
+                OutputTextArea.setText(plainText);
             }
         }
     }
