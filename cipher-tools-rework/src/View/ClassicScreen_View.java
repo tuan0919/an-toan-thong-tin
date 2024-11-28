@@ -111,6 +111,21 @@ public class ClassicScreen_View extends AScreenView implements ScreenObserver {
         EventFire_Support = new PropertyChangeSupport(this);
     }
 
+    public void onGenerateKeyCipherTextButton_Click(Consumer<Void> callback) {
+        GenerateKeyCipherText_Button.addActionListener(e -> callback.accept(null));
+    }
+
+    public void onChangeCipherAlphabet(Consumer<String> callback) {
+        CipherTextAlphabet_TextField.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusLost(FocusEvent e) {
+                String text = CipherTextAlphabet_TextField.getText().toUpperCase();
+                CipherTextAlphabet_TextField.setText(text);
+                callback.accept(text);
+            }
+        });
+    }
+
     public void onChangeCaesarKey(Consumer<Integer> callback) {
         ShiftKey_TextField.addFocusListener(new FocusAdapter() {
             @Override
@@ -537,6 +552,10 @@ public class ClassicScreen_View extends AScreenView implements ScreenObserver {
                 if (AlphabetChoose_ComboBox.getSelectedIndex() != alphabetIndex) {
                     AlphabetChoose_ComboBox.setSelectedIndex(alphabetIndex);
                 }
+            }
+            case "change_cipher_alphabet" -> {
+                String randomKey = (String) data.get("cipher_alphabet");
+                CipherTextAlphabet_TextField.setText(randomKey);
             }
             case "encrypted" -> {
                 String cipherText = (String) data.get("cipher_text");

@@ -13,6 +13,7 @@ public class ClassicScreen_Controller extends AController<ClassicScreen_View> {
     private Affine affine;
     private Vigenere vigenere;
     private Caesar caesar;
+    private Substitution substitution;
     private ClassicScreen_Model model;
     public ClassicScreen_Controller(ClassicScreen_View view) {
         super(view);
@@ -31,6 +32,19 @@ public class ClassicScreen_Controller extends AController<ClassicScreen_View> {
         view.onDecryptButton_Click(a -> handleDecrypt());
         view.onChangeVigenereKey(vigenere -> model.setVigenereKey(vigenere));
         view.onChangeCaesarKey(caesarKey -> model.setCaesarKey(caesarKey));
+        view.onChangeCipherAlphabet(cipherAlphabet -> model.setSubstitutionKey(cipherAlphabet));
+        view.onGenerateKeyCipherTextButton_Click(x -> handleGenerateCipherAlphabet());
+    }
+
+    private void handleGenerateCipherAlphabet() {
+        String alphabet = model.getAlphabet();
+        String generateKey = substitution.generateKey(alphabet);
+        substitution.setAlphabet(alphabet);
+        substitution.loadKey(generateKey);
+        model.setSubstitutionKey(generateKey);
+        model.notifyObservers("change_cipher_alphabet", Map.of(
+                "cipher_alphabet", generateKey
+        ));
     }
 
     private void handleChangeAffineKey(Integer key, String name) {
@@ -67,6 +81,16 @@ public class ClassicScreen_Controller extends AController<ClassicScreen_View> {
                 caesar.loadKey(caesarKey, model.getAlphabet());
                 plainText = caesar.decrypt(input);
             }
+            case "Substitution" -> {
+                String substitutionKey = model.getSubstitutionKey();
+                String alphabet = model.getAlphabet();
+                if (substitutionKey.length() != alphabet.length()) {
+                    throw new MyAppException(ErrorType.WRONG_SUBSTITUTION_KEY, view);
+                }
+                substitution.setAlphabet(alphabet);
+                substitution.loadKey(substitutionKey);
+                plainText = substitution.decrypt(input);
+            }
         }
         model.notifyObservers("decrypted", Map.of(
                 "plain_text", plainText
@@ -99,6 +123,16 @@ public class ClassicScreen_Controller extends AController<ClassicScreen_View> {
                 Integer caesarKey = model.getCaesarKey();
                 caesar.loadKey(caesarKey, model.getAlphabet());
                 cipherText = caesar.encrypt(input);
+            }
+            case "Substitution" -> {
+                String substitutionKey = model.getSubstitutionKey();
+                String alphabet = model.getAlphabet();
+                if (substitutionKey.length() != alphabet.length()) {
+                    throw new MyAppException(ErrorType.WRONG_SUBSTITUTION_KEY, view);
+                }
+                substitution.setAlphabet(alphabet);
+                substitution.loadKey(substitutionKey);
+                cipherText = substitution.encrypt(input);
             }
         }
         model.notifyObservers("encrypted", Map.of(
@@ -151,6 +185,7 @@ public class ClassicScreen_Controller extends AController<ClassicScreen_View> {
         this.affine = new Affine();
         this.vigenere = new Vigenere();
         this.caesar = new Caesar();
+        this.substitution = new Substitution();
         model.addObserver(view);
         model.notifyObservers("change_algorithm", Map.of(
                 "algorithm", ClassicScreen_Model.AFFINE_ALGORITHM

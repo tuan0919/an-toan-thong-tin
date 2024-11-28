@@ -1,9 +1,10 @@
 package Model.Algorithm.Classic;
 
+import Model.Algorithm.Classic.Alphabet;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-import java.util.stream.Stream;
 
 public class Substitution {
 
@@ -16,31 +17,24 @@ public class Substitution {
         this.reverseMap = new HashMap<>();
     }
 
-    public void generateKey(Alphabet language) {
-        this.alphabet = language.getAlphabet();
-
-        StringBuilder shuffledAlphabet = new StringBuilder(alphabet);
+    public String generateKey(String language) {
+        StringBuilder shuffledAlphabet = new StringBuilder(language);
         Random random = new Random();
 
         // Xáo trộn bảng chữ cái
-        for (int i = 0; i < alphabet.length(); i++) {
-            int swapIndex = random.nextInt(alphabet.length());
+        for (int i = 0; i < language.length(); i++) {
+            int swapIndex = random.nextInt(language.length());
             char temp = shuffledAlphabet.charAt(i);
             shuffledAlphabet.setCharAt(i, shuffledAlphabet.charAt(swapIndex));
             shuffledAlphabet.setCharAt(swapIndex, temp);
         }
-
-        // Tạo bảng ánh xạ mã hóa và giải mã
-        for (int i = 0; i < alphabet.length(); i++) {
-            char originalChar = alphabet.charAt(i);
-            char mappedChar = shuffledAlphabet.charAt(i);
-            substitutionMap.put(originalChar, mappedChar);
-            reverseMap.put(mappedChar, originalChar);
-        }
+        return shuffledAlphabet.toString();
     }
 
     public void loadKey(String key) {
-        this.alphabet = key;
+        if (key.length() != alphabet.length()) {
+            throw new IllegalArgumentException("Key length must match alphabet length");
+        }
 
         for (int i = 0; i < alphabet.length(); i++) {
             char originalChar = alphabet.charAt(i);
@@ -50,14 +44,16 @@ public class Substitution {
         }
     }
 
+    public void setAlphabet(String alphabet) {
+        this.alphabet = alphabet; // Tạo cơ sở mapping động cho bảng mã hóa.
+    }
+
     public String encrypt(String plainText) {
         StringBuilder cipherText = new StringBuilder();
 
         for (char c : plainText.toCharArray()) {
-            char upperC = Character.toUpperCase(c);
-            if (substitutionMap.containsKey(upperC)) {
-                char mappedChar = substitutionMap.get(upperC);
-                cipherText.append(Character.isLowerCase(c) ? Character.toLowerCase(mappedChar) : mappedChar);
+            if (substitutionMap.containsKey(c)) {
+                cipherText.append(substitutionMap.get(c));
             } else {
                 cipherText.append(c);
             }
@@ -70,10 +66,8 @@ public class Substitution {
         StringBuilder plainText = new StringBuilder();
 
         for (char c : cipherText.toCharArray()) {
-            char upperC = Character.toUpperCase(c);
-            if (reverseMap.containsKey(upperC)) {
-                char mappedChar = reverseMap.get(upperC);
-                plainText.append(Character.isLowerCase(c) ? Character.toLowerCase(mappedChar) : mappedChar);
+            if (reverseMap.containsKey(c)) {
+                plainText.append(reverseMap.get(c));
             } else {
                 plainText.append(c);
             }
@@ -83,30 +77,29 @@ public class Substitution {
     }
 
     public static void main(String[] args) {
-        String plainTextEn = "HELLO WORLD!";
-        String plainTextVi = "á à ả ò ó o!";
-
-        // Substitution cipher for English
         Substitution substitutionEn = new Substitution();
-        substitutionEn.generateKey(Alphabet.EN);
-        String cipherTextEn = substitutionEn.encrypt(plainTextEn);
-        System.out.println("English Cipher Text: " + cipherTextEn);
-        System.out.println("Decrypted English: " + substitutionEn.decrypt(cipherTextEn));
 
-        // Substitution cipher for Vietnamese
+        // English example
+        String plainTextEn = "HELLO WORLD!";
+        substitutionEn.setAlphabet(Alphabet.EN.getAlphabet());  // Set base ALPHABET
+        String key = substitutionEn.generateKey(Alphabet.EN.getAlphabet());
+        substitutionEn.loadKey(key);
+
+        System.out.println("Key: " + key);
+        String cipherText = substitutionEn.encrypt(plainTextEn);
+        System.out.println("Cipher: " + cipherText);
+        System.out.println("Decrypted: " + substitutionEn.decrypt(cipherText));
+
+        // Vietnamese example
         Substitution substitutionVi = new Substitution();
-        substitutionVi.generateKey(Alphabet.VN);
-        String cipherTextVi = substitutionVi.encrypt(plainTextVi);
-        System.out.println("Vietnamese Cipher Text: " + cipherTextVi);
-        System.out.println("Decrypted Vietnamese: " + substitutionVi.decrypt(cipherTextVi));
-        System.out.println("used alphabet: "+substitutionVi.alphabet);
-        String test = "aăâbcdđeêghiklmnọôơpqrstuưvxyáàảãạăắằẳẵặâấầẩẫậéèẻẽẹêếềểễệíìỉĩịóòỏõọôốồổỗộơớờởỡợúùủũụưứừửữựýỳỷỹỵ";
-        System.out.println();
-        for (var c : test.toCharArray()) {
-            System.out.print(Character.toUpperCase(c));
-        }
-        Character character = test.charAt(2);
-        System.out.println();
-        System.out.println('ặ' == 'ặ');
+        substitutionVi.setAlphabet(Alphabet.VN.getAlphabet());
+        String plainTextVi = "á à ả ò ó o!";
+        String viKey = substitutionVi.generateKey(Alphabet.VN.getAlphabet());
+        substitutionVi.loadKey(viKey);
+        System.out.println("Vietnamese key: " + viKey);
+
+        String vietCipher = substitutionVi.encrypt(plainTextVi);
+        System.out.println("Vietnamese Cipher: " + vietCipher);
+        System.out.println("Decrypted VN: " + substitutionVi.decrypt(vietCipher));
     }
 }
