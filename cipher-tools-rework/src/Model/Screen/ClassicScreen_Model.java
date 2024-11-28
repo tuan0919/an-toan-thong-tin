@@ -16,6 +16,9 @@ public class ClassicScreen_Model implements ModelObservable {
     private List<ScreenObserver> observers = new ArrayList<>();
     private String algorithm;
     private String alphabet;
+    private Integer[][] matrixKey;
+    private int matrixSize;
+    private String inputText;
     // Đăng ký Observer
     public void addObserver(ScreenObserver observer) {
         observers.add(observer);
@@ -32,6 +35,14 @@ public class ClassicScreen_Model implements ModelObservable {
         }
     }
 
+    public String getInputText() {
+        return inputText;
+    }
+
+    public void setInputText(String inputText) {
+        this.inputText = inputText;
+    }
+
     public String getAlphabet() {
         return alphabet;
     }
@@ -46,5 +57,21 @@ public class ClassicScreen_Model implements ModelObservable {
 
     public void setAlgorithm(String algorithm) {
         this.algorithm = algorithm;
+    }
+
+    public Integer[][] getMatrixKey() {
+        return matrixKey;
+    }
+
+    public void setMatrixKey(Integer[][] matrixKey) {
+        this.matrixKey = matrixKey;
+    }
+
+    public int getMatrixSize() {
+        return matrixSize;
+    }
+
+    public void setMatrixSize(int matrixSize) {
+        this.matrixSize = matrixSize;
     }
 }
