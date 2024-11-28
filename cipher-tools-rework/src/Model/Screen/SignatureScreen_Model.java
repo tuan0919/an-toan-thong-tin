@@ -1,7 +1,7 @@
 package Model.Screen;
 
 import java.io.File;
-import java.security.AsymmetricKey;
+import java.security.Key;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -14,7 +14,7 @@ public class SignatureScreen_Model implements ModelObservable {
     private List<ScreenObserver> observers = new ArrayList<>();
     private String publicKey;
     private String privateKey;
-    private Class<? extends AsymmetricKey> usingKey;
+    private Class<? extends Key> usingKey;
     private String inputSignature;
     private String inputText;
     private int keySize;
@@ -43,7 +43,7 @@ public class SignatureScreen_Model implements ModelObservable {
         return privateKey;
     }
 
-    public Class<? extends AsymmetricKey> getUsingKey() {
+    public Class<? extends Key> getUsingKey() {
         return usingKey;
     }
 
@@ -75,7 +75,7 @@ public class SignatureScreen_Model implements ModelObservable {
         this.publicKey = publicKey;
     }
 
-    public void setUsingKey(Class<? extends AsymmetricKey> usingKey) {
+    public void setUsingKey(Class<? extends Key> usingKey) {
         this.usingKey = usingKey;
     }
 

@@ -29,13 +29,13 @@ public class SignatureScreen_Controller extends AController<SignatureScreen_View
         view.onChangeInputType(newInput -> handleChangeInputMode(newInput));
         view.onChooseAlgorithm_ComboBox(algorithm -> handleChooseAlgorithm(algorithm));
         view.onChooseKeySize_ComboBox(size -> handleChooseKeySize(size));
-        view.onGenerateKeyButton_Click(_ -> handleGenerateKeyButton_Click());
+        view.onGenerateKeyButton_Click(x -> handleGenerateKeyButton_Click());
         view.onInputTextChange(inputText -> model.setInputText(inputText));
-        view.onCreateSignatureButton_Click(_ -> handleCreateSignatureButton());
+        view.onCreateSignatureButton_Click(x -> handleCreateSignatureButton());
         view.onChooseUsageKey(clazz -> model.setUsingKey(clazz));
         view.onChangeSignatureInputText(signatureInput -> model.setInputSignature(signatureInput));
-        view.onCheckingSignatureButton_Click(_ -> handleCheckingSignatureButton_Click());
-        view.onLoadFileButton_Click(_ -> model.notifyObservers("open_file_chooser_for_chosen_file", Map.of()));
+        view.onCheckingSignatureButton_Click(x -> handleCheckingSignatureButton_Click());
+        view.onLoadFileButton_Click(x -> model.notifyObservers("open_file_chooser_for_chosen_file", Map.of()));
         view.onInputFileChosen(file -> model.setFile(file));
     }
 

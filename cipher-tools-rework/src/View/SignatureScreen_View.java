@@ -12,7 +12,7 @@ import java.awt.event.FocusEvent;
 import java.awt.event.ItemListener;
 import java.beans.PropertyChangeSupport;
 import java.io.File;
-import java.security.AsymmetricKey;
+import java.security.Key;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.Map;
@@ -54,11 +54,11 @@ public class SignatureScreen_View extends AScreenView implements ScreenObserver 
     }
 
     public void onLoadFileButton_Click(Consumer<Void> callback) {
-        LoadFile_Button.addActionListener(_ -> callback.accept(null));
+        LoadFile_Button.addActionListener(x -> callback.accept(null));
     }
 
     public void onCheckingSignatureButton_Click(Consumer<Void> callback) {
-        CheckSignature_Button.addActionListener(_ -> callback.accept(null));
+        CheckSignature_Button.addActionListener(x -> callback.accept(null));
     }
 
     public void onChangeSignatureInputText(Consumer<String> callback) {
@@ -73,7 +73,7 @@ public class SignatureScreen_View extends AScreenView implements ScreenObserver 
         });
     }
 
-    public void onChooseUsageKey(Consumer<Class<? extends AsymmetricKey>> callback) {
+    public void onChooseUsageKey(Consumer<Class<? extends Key>> callback) {
         ChooseUsageKey_RadioButtons[0].setActionCommand("Public_Key");
         ChooseUsageKey_RadioButtons[1].setActionCommand("Private_Key");
         ItemListener listener = event -> {
@@ -87,7 +87,7 @@ public class SignatureScreen_View extends AScreenView implements ScreenObserver 
     }
 
     public void onGenerateKeyButton_Click(Consumer<Void> callback) {
-        GenerateKey_Button.addActionListener(_ -> callback.accept(null));
+        GenerateKey_Button.addActionListener(x -> callback.accept(null));
     }
 
     public void onChangeInputType(Consumer<Integer> callback) {
@@ -102,7 +102,7 @@ public class SignatureScreen_View extends AScreenView implements ScreenObserver 
     }
 
     public void onCreateSignatureButton_Click(Consumer<Void> callback) {
-        CreateSignature_Button.addActionListener(_ -> callback.accept(null));
+        CreateSignature_Button.addActionListener(x -> callback.accept(null));
     }
 
     public void onChooseAlgorithm_ComboBox(Consumer<String> callback) {

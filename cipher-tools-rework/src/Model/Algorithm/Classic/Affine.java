@@ -13,12 +13,16 @@ public class Affine {
     }
 
     public void loadKey(int a, int b, Alphabet language) {
-        if (gcd(a, language.getAlphabet().length()) != 1) {
+        loadKey(a, b, language.getAlphabet());
+    }
+
+    public void loadKey(int a, int b, String alphabet) {
+        if (gcd(a, alphabet.length()) != 1) {
             throw new IllegalArgumentException("Key 'a' must be coprime with the length of the alphabet.");
         }
         this.a = a;
         this.b = b;
-        this.alphabet = language.getAlphabet();
+        this.alphabet = alphabet;
         this.m = alphabet.length();
     }
 

@@ -11,7 +11,7 @@ import java.awt.event.FocusEvent;
 import java.awt.event.ItemListener;
 import java.beans.PropertyChangeSupport;
 import java.io.File;
-import java.security.AsymmetricKey;
+import java.security.Key;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.List;
@@ -235,7 +235,7 @@ public class AsymmetricScreen_View extends AScreenView implements ScreenObserver
         });
     }
 
-    public void onChooseUsageKey(Consumer<Class<? extends AsymmetricKey>> callback) {
+    public void onChooseUsageKey(Consumer<Class<? extends Key>> callback) {
         PublicKey_RadioButton.setActionCommand("Public_Key");
         PrivateKey_RadioButton.setActionCommand("Private_Key");
         ItemListener listener = event -> {

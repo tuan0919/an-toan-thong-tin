@@ -1,6 +1,6 @@
 package Model.Screen;
 
-import java.security.AsymmetricKey;
+import java.security.Key;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.*;
@@ -8,7 +8,7 @@ import java.util.*;
 public class AsymmetricScreen_Model implements ModelObservable {
     private String publicKey;
     private String privateKey;
-    private Class<? extends AsymmetricKey> usingKey;
+    private Class<? extends Key> usingKey;
     private String inputText;
     private String outputText;
     private List<ScreenObserver> observers = new ArrayList<>();
@@ -56,11 +56,11 @@ public class AsymmetricScreen_Model implements ModelObservable {
         this.keySize = keySize;
     }
 
-    public Class<? extends AsymmetricKey> getUsingKey() {
+    public Class<? extends Key> getUsingKey() {
         return usingKey;
     }
 
-    public void setUsingKey(Class<? extends AsymmetricKey> usingKey) {
+    public void setUsingKey(Class<? extends Key> usingKey) {
         this.usingKey = usingKey;
     }
 

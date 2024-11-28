@@ -22,7 +22,7 @@ public class HashScreen_Controller extends AController<HashScreen_View> {
 
     @Override
     protected void initialCallbacks() {
-        view.onInputTextArea_DocumentChange(_ -> view.toggleSelectFileButton());
+        view.onInputTextArea_DocumentChange(x -> view.toggleSelectFileButton());
         view.onSelectFileButton_Click(e -> view.openFileChooser_ForPickFile());
         view.onDeselectFileButton_Click(e -> setChooseFile_FireEvent(null));
         view.onHashButton_Click(e -> handleHashButton_Click());

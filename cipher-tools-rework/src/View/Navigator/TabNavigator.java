@@ -6,9 +6,9 @@ import View.*;
 import javax.swing.*;
 
 public class TabNavigator extends JTabbedPane {
-    private TraditionalScreen_View TraditionalScreenView = new TraditionalScreen_View();
+    private ClassicScreen_View TraditionalScreenView = new ClassicScreen_View();
     {
-        new TraditionalScreen_Controller(TraditionalScreenView);
+        new ClassicScreen_Controller(TraditionalScreenView);
     }
     private SymmetricScreen_View SymmetricScreenView = new SymmetricScreen_View();
     {

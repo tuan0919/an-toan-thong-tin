@@ -16,6 +16,7 @@ public enum ErrorType {
     SAVE_FILE_FAILED("Thông báo", "Lưu key thất bại", JOptionPane.WARNING_MESSAGE),
     WRONG_FILE_FORMAT_LOAD_KEY("Lỗi", "Không thể load file key ở định dạng bạn đã chọn", JOptionPane.ERROR_MESSAGE),
     IO_ERROR("Lỗi", "Lỗi không đọc được file", JOptionPane.ERROR_MESSAGE),
+    WRONG_MATRIX_SIZE("Ma trận không hợp lệ", "Chương trình chỉ chấp nhận ma trận có kích thước <= 9.", JOptionPane.WARNING_MESSAGE);
     ;
     private final String message;
     private final String title;

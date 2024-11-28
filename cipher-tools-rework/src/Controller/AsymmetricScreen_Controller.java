@@ -32,10 +32,10 @@ public class AsymmetricScreen_Controller extends AController<AsymmetricScreen_Vi
         view.onSaveKeyButton_Click(event -> handleSaveKeyButton_Click(event));
         view.onChooseUsageKey(clazz -> model.setUsingKey(clazz));
         view.onChooseKeySize((size, index) -> model.setKeySize(size));
-        view.onSavePrivateKeyButton_Click(_ -> view.openJFileChooser_ForSavePrivateKey());
-        view.onLoadPrivateKeyButton_Click(_ -> view.openJFileChooser_ForLoadPrivateKey());
-        view.onSavePublicKeyButton_Click(_ -> view.openJFileChooser_ForSavePublicKey());
-        view.onLoadPublicKeyButton_Click(_ -> view.openJFileChooser_ForLoadPublicKey());
+        view.onSavePrivateKeyButton_Click(a -> view.openJFileChooser_ForSavePrivateKey());
+        view.onLoadPrivateKeyButton_Click(a -> view.openJFileChooser_ForLoadPrivateKey());
+        view.onSavePublicKeyButton_Click(a -> view.openJFileChooser_ForSavePublicKey());
+        view.onLoadPublicKeyButton_Click(a -> view.openJFileChooser_ForLoadPublicKey());
         view.onChooseLocation_ForLoadPrivateKey(file -> handleOnChooseLocation_ForLoadPrivateKey(file));
         view.onChooseLocation_ForSavePrivateKey(file -> handleOnChooseLocation_ForSavePrivateKey(file));
         view.onChooseLocation_ForSavePublicKey(file -> handleOnChooseLocation_ForSavePublicKey(file));
@@ -43,8 +43,8 @@ public class AsymmetricScreen_Controller extends AController<AsymmetricScreen_Vi
         view.onInputTextArea_LostFocus(text -> model.setInputText(text));
         view.onPrivateKeyTextArea_LostFocus(text -> model.setPrivateKey(text));
         view.onPublicKeyTextArea_LostFocus(text -> model.setPublicKey(text));
-        view.onEncryptButton_Click(_ -> handleEncryptButtonClick());
-        view.onDecryptButton_Click(_ -> handleDecryptButtonClick());
+        view.onEncryptButton_Click(a -> handleEncryptButtonClick());
+        view.onDecryptButton_Click(a -> handleDecryptButtonClick());
     }
 
     private void handleOnChooseLocation_ForLoadPrivateKey(File file) {
