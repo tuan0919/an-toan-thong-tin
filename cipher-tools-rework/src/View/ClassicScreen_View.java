@@ -111,6 +111,19 @@ public class ClassicScreen_View extends AScreenView implements ScreenObserver {
         EventFire_Support = new PropertyChangeSupport(this);
     }
 
+    public void onChangeCaesarKey(Consumer<Integer> callback) {
+        ShiftKey_TextField.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusLost(FocusEvent e) {
+                String text = ShiftKey_TextField.getText();
+                if (text.trim().length() <= 0) return;
+                if (!text.matches("^\\d+$"))
+                    throw new MyAppException(ErrorType.WRONG_CAESAR_KEY, ClassicScreen_View.this);
+                callback.accept(Integer.parseInt(text));
+            }
+        });
+    }
+
     public void onChangeAlphabet(Consumer<String> callback) {
         var lostFocus = new FocusAdapter() {
             @Override
@@ -140,6 +153,15 @@ public class ClassicScreen_View extends AScreenView implements ScreenObserver {
     public void onChangeAlgorithm(Consumer<String> callback) {
         AlgorithmSelector_ComboBox.addItemListener(event -> {
             callback.accept(AlgorithmSelector_ComboBox.getSelectedItem().toString());
+        });
+    }
+
+    public void onChangeVigenereKey(Consumer<String> callback) {
+        VigenereKey_TextField.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusLost(FocusEvent e) {
+                callback.accept(VigenereKey_TextField.getText());
+            }
         });
     }
 

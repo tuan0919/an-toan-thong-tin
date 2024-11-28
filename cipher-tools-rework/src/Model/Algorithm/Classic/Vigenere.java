@@ -12,7 +12,11 @@ public class Vigenere {
     }
 
     public void loadKey(String key, Alphabet language) {
-        this.alphabet = language.getAlphabet();
+        loadKey(key, language.getAlphabet());
+    }
+
+    public void loadKey(String key, String alphabet) {
+        this.alphabet = alphabet;
         this.m = alphabet.length();
         this.key = key.toUpperCase();
     }

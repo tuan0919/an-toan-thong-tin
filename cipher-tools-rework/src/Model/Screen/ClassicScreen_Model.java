@@ -21,6 +21,8 @@ public class ClassicScreen_Model implements ModelObservable {
     private String inputText;
     private Integer affineKey_A;
     private Integer affineKey_B;
+    private String vigenereKey;
+    private Integer caesarKey;
     // Đăng ký Observer
     public void addObserver(ScreenObserver observer) {
         observers.add(observer);
@@ -91,5 +93,21 @@ public class ClassicScreen_Model implements ModelObservable {
 
     public void setAffineKey_B(Integer affineKey_B) {
         this.affineKey_B = affineKey_B;
+    }
+
+    public String getVigenereKey() {
+        return vigenereKey;
+    }
+
+    public void setVigenereKey(String vigenereKey) {
+        this.vigenereKey = vigenereKey;
+    }
+
+    public Integer getCaesarKey() {
+        return caesarKey;
+    }
+
+    public void setCaesarKey(Integer caesarKey) {
+        this.caesarKey = caesarKey;
     }
 }

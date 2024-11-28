@@ -1,8 +1,6 @@
 package Controller;
 
-import Model.Algorithm.Classic.Affine;
-import Model.Algorithm.Classic.Alphabet;
-import Model.Algorithm.Classic.Hill;
+import Model.Algorithm.Classic.*;
 import Model.Screen.ClassicScreen_Model;
 import MyException.ErrorType;
 import MyException.MyAppException;
@@ -13,6 +11,8 @@ import java.util.Map;
 public class ClassicScreen_Controller extends AController<ClassicScreen_View> {
     private Hill hill;
     private Affine affine;
+    private Vigenere vigenere;
+    private Caesar caesar;
     private ClassicScreen_Model model;
     public ClassicScreen_Controller(ClassicScreen_View view) {
         super(view);
@@ -29,6 +29,8 @@ public class ClassicScreen_Controller extends AController<ClassicScreen_View> {
         view.onInputTextChange(input -> model.setInputText(input));
         view.onEncryptButton_Click(a -> handleEncrypt());
         view.onDecryptButton_Click(a -> handleDecrypt());
+        view.onChangeVigenereKey(vigenere -> model.setVigenereKey(vigenere));
+        view.onChangeCaesarKey(caesarKey -> model.setCaesarKey(caesarKey));
     }
 
     private void handleChangeAffineKey(Integer key, String name) {
@@ -55,6 +57,16 @@ public class ClassicScreen_Controller extends AController<ClassicScreen_View> {
                 affine.loadKey(a, b, model.getAlphabet());
                 plainText = affine.decrypt(input);
             }
+            case "Vigenere" -> {
+                String viegenereKey = model.getVigenereKey();
+                vigenere.loadKey(viegenereKey, model.getAlphabet());
+                plainText = vigenere.decrypt(input);
+            }
+            case "Caesar" -> {
+                Integer caesarKey = model.getCaesarKey();
+                caesar.loadKey(caesarKey, model.getAlphabet());
+                plainText = caesar.decrypt(input);
+            }
         }
         model.notifyObservers("decrypted", Map.of(
                 "plain_text", plainText
@@ -77,6 +89,16 @@ public class ClassicScreen_Controller extends AController<ClassicScreen_View> {
                 }
                 affine.loadKey(a, b, model.getAlphabet());
                 cipherText = affine.encrypt(input);
+            }
+            case "Vigenere" -> {
+                String viegenereKey = model.getVigenereKey();
+                vigenere.loadKey(viegenereKey, model.getAlphabet());
+                cipherText = vigenere.encrypt(input);
+            }
+            case "Caesar" -> {
+                Integer caesarKey = model.getCaesarKey();
+                caesar.loadKey(caesarKey, model.getAlphabet());
+                cipherText = caesar.encrypt(input);
             }
         }
         model.notifyObservers("encrypted", Map.of(
@@ -127,6 +149,8 @@ public class ClassicScreen_Controller extends AController<ClassicScreen_View> {
         this.model = new ClassicScreen_Model();
         this.hill = new Hill();
         this.affine = new Affine();
+        this.vigenere = new Vigenere();
+        this.caesar = new Caesar();
         model.addObserver(view);
         model.notifyObservers("change_algorithm", Map.of(
                 "algorithm", ClassicScreen_Model.AFFINE_ALGORITHM

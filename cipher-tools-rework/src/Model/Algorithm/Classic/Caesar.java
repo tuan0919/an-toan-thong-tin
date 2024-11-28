@@ -13,7 +13,11 @@ public class Caesar {
     }
 
     public void loadKey(int key, Alphabet language) {
-        this.alphabet = language.getAlphabet();
+        loadKey(key, language.getAlphabet());
+    }
+
+    public void loadKey(int key, String language) {
+        this.alphabet = language;
         this.key = key % alphabet.length();
     }
 

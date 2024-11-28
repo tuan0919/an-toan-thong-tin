@@ -107,6 +107,6 @@ public class Substitution {
         }
         Character character = test.charAt(2);
         System.out.println();
-        System.out.println(character == 'â');
+        System.out.println('ặ' == 'ặ');
     }
 }

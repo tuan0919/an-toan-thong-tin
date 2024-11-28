@@ -18,6 +18,7 @@ public enum ErrorType {
     IO_ERROR("Lỗi", "Lỗi không đọc được file", JOptionPane.ERROR_MESSAGE),
     WRONG_MATRIX_SIZE("Ma trận không hợp lệ", "Chương trình chỉ chấp nhận ma trận có kích thước <= 9.", JOptionPane.WARNING_MESSAGE),
     WRONG_AFFINE_KEY("Affine Key không hợp lệ", "Key chỉ có thể là 2 cặp số", JOptionPane.WARNING_MESSAGE),
+    WRONG_CAESAR_KEY("Caesar Key không hợp lệ", "Key phải là một số đại diện cho số kí tự cần dịch chuyển", JOptionPane.WARNING_MESSAGE)
     ;
     private final String message;
     private final String title;
