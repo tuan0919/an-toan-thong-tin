@@ -19,6 +19,8 @@ public class ClassicScreen_Model implements ModelObservable {
     private Integer[][] matrixKey;
     private int matrixSize;
     private String inputText;
+    private Integer affineKey_A;
+    private Integer affineKey_B;
     // Đăng ký Observer
     public void addObserver(ScreenObserver observer) {
         observers.add(observer);
@@ -73,5 +75,21 @@ public class ClassicScreen_Model implements ModelObservable {
 
     public void setMatrixSize(int matrixSize) {
         this.matrixSize = matrixSize;
+    }
+
+    public Integer getAffineKey_A() {
+        return affineKey_A;
+    }
+
+    public void setAffineKey_A(Integer affineKey_A) {
+        this.affineKey_A = affineKey_A;
+    }
+
+    public Integer getAffineKey_B() {
+        return affineKey_B;
+    }
+
+    public void setAffineKey_B(Integer affineKey_B) {
+        this.affineKey_B = affineKey_B;
     }
 }

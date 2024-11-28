@@ -1,5 +1,6 @@
 package Controller;
 
+import Model.Algorithm.Classic.Affine;
 import Model.Algorithm.Classic.Alphabet;
 import Model.Algorithm.Classic.Hill;
 import Model.Screen.ClassicScreen_Model;
@@ -11,6 +12,7 @@ import java.util.Map;
 
 public class ClassicScreen_Controller extends AController<ClassicScreen_View> {
     private Hill hill;
+    private Affine affine;
     private ClassicScreen_Model model;
     public ClassicScreen_Controller(ClassicScreen_View view) {
         super(view);
@@ -23,9 +25,17 @@ public class ClassicScreen_Controller extends AController<ClassicScreen_View> {
         view.onMatrixCellChange((x, data) -> handleMatrixKey_Change(data));
         view.onGenerateMatrixKey(size -> handleGenerateMatrixKey());
         view.onChangeMatrixSize(size -> model.setMatrixSize(size));
+        view.onChangeAffineKey((key, name) -> handleChangeAffineKey(key, name));
         view.onInputTextChange(input -> model.setInputText(input));
         view.onEncryptButton_Click(a -> handleEncrypt());
         view.onDecryptButton_Click(a -> handleDecrypt());
+    }
+
+    private void handleChangeAffineKey(Integer key, String name) {
+        switch (name) {
+            case "a" -> model.setAffineKey_A(key);
+            case "b" -> model.setAffineKey_B(key);
+        }
     }
 
     private void handleDecrypt() {
@@ -35,6 +45,15 @@ public class ClassicScreen_Controller extends AController<ClassicScreen_View> {
         switch (algorithm) {
             case "Hill" -> {
                 plainText = hill.decrypt(input);
+            }
+            case "Affine" -> {
+                Integer a = model.getAffineKey_A();
+                Integer b = model.getAffineKey_B();
+                if (a == null || b == null) {
+                    throw new MyAppException(ErrorType.WRONG_AFFINE_KEY, view);
+                }
+                affine.loadKey(a, b, model.getAlphabet());
+                plainText = affine.decrypt(input);
             }
         }
         model.notifyObservers("decrypted", Map.of(
@@ -49,6 +68,15 @@ public class ClassicScreen_Controller extends AController<ClassicScreen_View> {
         switch (algorithm) {
             case "Hill" -> {
                 cipherText = hill.encrypt(input);
+            }
+            case "Affine" -> {
+                Integer a = model.getAffineKey_A();
+                Integer b = model.getAffineKey_B();
+                if (a == null || b == null) {
+                    throw new MyAppException(ErrorType.WRONG_AFFINE_KEY, view);
+                }
+                affine.loadKey(a, b, model.getAlphabet());
+                cipherText = affine.encrypt(input);
             }
         }
         model.notifyObservers("encrypted", Map.of(
@@ -98,6 +126,7 @@ public class ClassicScreen_Controller extends AController<ClassicScreen_View> {
     protected void initialModels() {
         this.model = new ClassicScreen_Model();
         this.hill = new Hill();
+        this.affine = new Affine();
         model.addObserver(view);
         model.notifyObservers("change_algorithm", Map.of(
                 "algorithm", ClassicScreen_Model.AFFINE_ALGORITHM

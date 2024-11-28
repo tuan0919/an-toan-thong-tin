@@ -143,6 +143,31 @@ public class ClassicScreen_View extends AScreenView implements ScreenObserver {
         });
     }
 
+    public void onChangeAffineKey(BiConsumer<Integer, String> callback) {
+        InputKeyAB_TextField[0].addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusLost(FocusEvent e) {
+                JTextField txtField = (JTextField) e.getSource();
+                String text = txtField.getText();
+                if (text.trim().length() > 0 && !text.matches("^\\d+$"))
+                    throw new MyAppException(ErrorType.WRONG_AFFINE_KEY, ClassicScreen_View.this);
+                Integer key = text.trim().length() > 0 ? Integer.parseInt(text) : null;
+                callback.accept(key, "a");
+            }
+        });
+        InputKeyAB_TextField[1].addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusLost(FocusEvent e) {
+                JTextField txtField = (JTextField) e.getSource();
+                String text = txtField.getText();
+                if (text.trim().length() > 0 && !text.matches("^\\d+$"))
+                    throw new MyAppException(ErrorType.WRONG_AFFINE_KEY, ClassicScreen_View.this);
+                Integer key = text.trim().length() > 0 ? Integer.parseInt(text) : null;
+                callback.accept(key, "b");
+            }
+        });
+    }
+
     @Override
     public void initialLayout() {
         InputTextWrap_ScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
