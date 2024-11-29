@@ -101,6 +101,9 @@ public class ClassicScreen_Controller extends AController<ClassicScreen_View> {
         String input = model.getInputText();
         String algorithm = model.getAlgorithm();
         String cipherText = "";
+        if (input == null || input.trim().isEmpty()) {
+            throw new MyAppException(ErrorType.EMPTY_INPUT_FOR_ENCRYPT, view);
+        }
         switch (algorithm) {
             case "Hill" -> {
                 cipherText = hill.encrypt(input);
@@ -169,14 +172,6 @@ public class ClassicScreen_Controller extends AController<ClassicScreen_View> {
         return hill.generateRandomKey(size, alphabet);
     }
 
-    private void reloadAlgorithm() {
-        String algorithm = model.getAlgorithm();
-        switch (algorithm) {
-            case "Hill" -> {
-
-            }
-        }
-    }
 
     @Override
     protected void initialModels() {
@@ -187,15 +182,15 @@ public class ClassicScreen_Controller extends AController<ClassicScreen_View> {
         this.caesar = new Caesar();
         this.substitution = new Substitution();
         model.addObserver(view);
-        model.notifyObservers("change_algorithm", Map.of(
-                "algorithm", ClassicScreen_Model.AFFINE_ALGORITHM
+        {
+            model.setAlphabet(Alphabet.EN.getAlphabet());
+            model.setAlgorithm(ClassicScreen_Model.AFFINE_ALGORITHM);
+        }
+        model.notifyObservers("first_load", Map.of(
+                "available_algorithm", model.getAvailableAlgorithms(),
+                "current_algorithm", ClassicScreen_Model.AFFINE_ALGORITHM,
+                "current_alphabet_index", 0
         ));
-        model.setAlphabet(Alphabet.EN.getAlphabet());
-        model.notifyObservers("change_alphabet", Map.of(
-                "alphabet_index", 0
-        ));
-        var key = _createMatrix_(5, model.getAlphabet());
-        handleMatrixKey_Change(key);
     }
 
 }

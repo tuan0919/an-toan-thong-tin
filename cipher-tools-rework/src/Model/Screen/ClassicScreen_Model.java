@@ -24,6 +24,13 @@ public class ClassicScreen_Model implements ModelObservable {
     private String vigenereKey;
     private Integer caesarKey;
     private String substitutionKey;
+    static List<String> availableAlgorithms = new ArrayList<>() {{
+        this.add(CAESAR_ALGORITHM);
+        this.add(AFFINE_ALGORITHM);
+        this.add(VIGENERE_ALGORITHM);
+        this.add(SUBSTITUTION_ALGORITHM);
+        this.add(HILL_ALGORITHM);
+    }};
     // Đăng ký Observer
     public void addObserver(ScreenObserver observer) {
         observers.add(observer);
@@ -118,5 +125,9 @@ public class ClassicScreen_Model implements ModelObservable {
 
     public void setSubstitutionKey(String substitutionKey) {
         this.substitutionKey = substitutionKey;
+    }
+
+    public List<String> getAvailableAlgorithms() {
+        return availableAlgorithms;
     }
 }

@@ -17,6 +17,7 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -61,13 +62,7 @@ public class ClassicScreen_View extends AScreenView implements ScreenObserver {
 
     @Override
     public void initialComponent() {
-        AlgorithmSelector_ComboBox = new JComboBox<>(); {
-            AlgorithmSelector_ComboBox.addItem("Caesar");
-            AlgorithmSelector_ComboBox.addItem("Affine");
-            AlgorithmSelector_ComboBox.addItem("Vigenere");
-            AlgorithmSelector_ComboBox.addItem("Substitution");
-            AlgorithmSelector_ComboBox.addItem("Hill");
-        }
+        AlgorithmSelector_ComboBox = new JComboBox<>();
         EncryptButton = new JButton("Encrypt");
         DecryptButton = new JButton("Decrypt");
         InputTextArea = new JTextArea(20, 35);
@@ -127,7 +122,9 @@ public class ClassicScreen_View extends AScreenView implements ScreenObserver {
         SaveVigenereKey_Button = new JButton("Save"); {
             SaveVigenereKey_Button.setVisible(false);
         }
-        GenerateVigenerateKey_Button = new JButton("Generate random");
+        GenerateVigenerateKey_Button = new JButton("Generate random"); {
+            GenerateVigenerateKey_Button.setVisible(false);
+        }
         EventFire_Support = new PropertyChangeSupport(this);
     }
 
@@ -157,6 +154,10 @@ public class ClassicScreen_View extends AScreenView implements ScreenObserver {
                 callback.accept(Integer.parseInt(text));
             }
         });
+    }
+
+    public void loadAlgorithmComboBox(List<String> data) {
+        for (var d : data) AlgorithmSelector_ComboBox.addItem(d);
     }
 
     public void onChangeAlphabet(Consumer<String> callback) {
@@ -391,9 +392,7 @@ public class ClassicScreen_View extends AScreenView implements ScreenObserver {
             AlgorithmSettings.add(label, gbc);
             gbc.gridx = 1;
             gbc.fill = GridBagConstraints.HORIZONTAL;
-            AlgorithmSettings.add(CipherTextAlphabet_TextField, gbc); {
-                CipherTextAlphabet_TextField.setText("zyxwvutsrqponmlkjihgfedcba");
-            }
+            AlgorithmSettings.add(CipherTextAlphabet_TextField, gbc);
             // reset
             gbc.insets.bottom = 5;
             gbc.gridy = 6;
@@ -445,9 +444,7 @@ public class ClassicScreen_View extends AScreenView implements ScreenObserver {
 
             gbc.gridx = 1;
             gbc.fill = GridBagConstraints.HORIZONTAL;
-            AlgorithmSettings.add(VigenereKey_TextField, gbc); {
-                VigenereKey_TextField.setText("zyxwvutsrqponmlkjihgfedcba");
-            }
+            AlgorithmSettings.add(VigenereKey_TextField, gbc);
             // reset
             gbc.insets.bottom = 5;
 
@@ -554,6 +551,14 @@ public class ClassicScreen_View extends AScreenView implements ScreenObserver {
     @Override
     public void update(String event, Map<String, Object> data) {
         switch (event) {
+            case "first_load" -> {
+                List<String> algorithms = (List<String>) data.get("available_algorithm");
+                String currentAlgorithm = (String) data.get("current_algorithm");
+                Integer currentAlphabetIndex = (Integer) data.get("current_alphabet_index");
+                loadAlgorithmComboBox(algorithms);
+                AlgorithmSelector_ComboBox.setSelectedItem(currentAlgorithm);
+                AlphabetChoose_ComboBox.setSelectedIndex(currentAlphabetIndex);
+            }
             case "change_algorithm" -> {
                 String algorithm = (String) data.get("algorithm");
                 String selectedAlgorithm = AlgorithmSelector_ComboBox.getSelectedItem().toString();
