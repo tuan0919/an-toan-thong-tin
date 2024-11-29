@@ -21,13 +21,13 @@ public class AsymmetricAlgorithm {
     static Base64.Decoder BASE64_DECODER = Base64.getDecoder();
 
     public Cipher createInstance(int mode, PublicKey key) throws InvalidKeyException, NoSuchPaddingException, NoSuchAlgorithmException {
-        var cipher = Cipher.getInstance("RSA");
+        var cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
         cipher.init(mode, key);
         return cipher;
     }
 
     public Cipher createInstance(int mode, PrivateKey key) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
-        var cipher = Cipher.getInstance("RSA");
+        var cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
         cipher.init(mode, key);
         return cipher;
     }

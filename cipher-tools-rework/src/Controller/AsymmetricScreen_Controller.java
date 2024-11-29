@@ -68,8 +68,8 @@ public class AsymmetricScreen_Controller extends AController<AsymmetricScreen_Vi
             e.printStackTrace();
             throw new MyAppException(ErrorType.UNKNOWN_ERROR, view);
         }
-        String message = String.format("Load key thành công");
-        JOptionPane.showMessageDialog(view, message, "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+        String message = String.format("Loaded private key");
+        JOptionPane.showMessageDialog(view, message, "Load key success", JOptionPane.INFORMATION_MESSAGE);
         String privateKeyAsString = algorithm.getPrivateKeyAsString();
         model.setPrivateKey(privateKeyAsString);
         model.notifyObservers("load_private_key", Map.of(
@@ -98,8 +98,8 @@ public class AsymmetricScreen_Controller extends AController<AsymmetricScreen_Vi
         } catch (IOException e) {
             throw new MyAppException(ErrorType.IO_ERROR, view);
         }
-        String message = String.format("Lưu thành công key tại đường dẫn: %s", filePath);
-        JOptionPane.showMessageDialog(view, message, "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+        String message = String.format("Save key successfully at: %s", filePath);
+        JOptionPane.showMessageDialog(view, message, "Save key success", JOptionPane.INFORMATION_MESSAGE);
     }
 
     private void handleOnChooseLocation_ForLoadPublicKey(File file) {
@@ -123,8 +123,8 @@ public class AsymmetricScreen_Controller extends AController<AsymmetricScreen_Vi
             e.printStackTrace();
             throw new MyAppException(ErrorType.UNKNOWN_ERROR, view);
         }
-        String message = String.format("Load key thành công");
-        JOptionPane.showMessageDialog(view, message, "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+        String message = String.format("Loaded public key");
+        JOptionPane.showMessageDialog(view, message, "Load key success", JOptionPane.INFORMATION_MESSAGE);
         String publicKeyAsString = algorithm.getPublicKeyAsString();
         model.setPublicKey(publicKeyAsString);
         model.notifyObservers("load_public_key", Map.of(
@@ -153,8 +153,8 @@ public class AsymmetricScreen_Controller extends AController<AsymmetricScreen_Vi
         } catch (IOException e) {
             throw new MyAppException(ErrorType.IO_ERROR, view);
         }
-        String message = String.format("Lưu thành công key tại đường dẫn: %s", filePath);
-        JOptionPane.showMessageDialog(view, message, "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+        String message = String.format("Save key successfully at: %s", filePath);
+        JOptionPane.showMessageDialog(view, message, "Save key success", JOptionPane.INFORMATION_MESSAGE);
     }
 
     @Override
