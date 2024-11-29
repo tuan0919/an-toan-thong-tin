@@ -1,3 +1,5 @@
+package Main;
+
 import MyException.GlobalExceptionHandler;
 import View.Navigator.TabNavigator;
 import com.formdev.flatlaf.FlatLightLaf;
@@ -7,10 +9,14 @@ import java.awt.*;
 public class App extends JFrame {
     private TabNavigator TabNavigator;
     private JPanel AppContentPane;
+    public static App instance;
 
-    public App(){
+    public App() {
+        if (instance == null){
+            instance = this;
+        }
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.setTitle("Tool Mã Hóa");
+        this.setTitle("NLU Cipher Tools");
         this.setVisible(true);
 
         initialComponents();
