@@ -1,5 +1,7 @@
 package MyException;
 
+import Main.App;
+
 import javax.swing.*;
 
 public class GlobalExceptionHandler {
@@ -11,7 +13,11 @@ public class GlobalExceptionHandler {
             JOptionPane.showMessageDialog(caused, errorType.getMessage(), errorType.getTitle(), errorType.getCode());
         } else {
             exception.printStackTrace();
-            throw new RuntimeException(exception);
+            JOptionPane.showMessageDialog(App.instance, exception.getMessage(), "Oops!", JOptionPane.ERROR_MESSAGE);
         }
+    }
+
+    public static void handleIllegalArgumentException(IllegalArgumentException exception) {
+        JOptionPane.showMessageDialog(App.instance, exception.getMessage(), "Illegal argument", JOptionPane.WARNING_MESSAGE);
     }
 }
