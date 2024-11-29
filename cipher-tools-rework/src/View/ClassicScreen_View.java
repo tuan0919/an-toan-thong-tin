@@ -68,8 +68,8 @@ public class ClassicScreen_View extends AScreenView implements ScreenObserver {
             AlgorithmSelector_ComboBox.addItem("Substitution");
             AlgorithmSelector_ComboBox.addItem("Hill");
         }
-        EncryptButton = new JButton("Mã hóa");
-        DecryptButton = new JButton("Giải mã");
+        EncryptButton = new JButton("Encrypt");
+        DecryptButton = new JButton("Decrypt");
         InputTextArea = new JTextArea(20, 35);
         OutputTextArea = new JTextArea(20, 35);
         InputTextWrap_ScrollPane = new JScrollPane(InputTextArea);
@@ -77,37 +77,57 @@ public class ClassicScreen_View extends AScreenView implements ScreenObserver {
         OverallContentWrap_Panel = new JPanel(new GridLayout());
         CipherContentWrap_Panel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         MatrixInput_Table = new MatrixTable_View();
-        CreateMatrix_Button = new JButton("Tạo ma trận");
-        SaveMatrix_Button = new JButton("Lưu");
-        LoadMatrix_Button = new JButton("Load");
+        CreateMatrix_Button = new JButton("Create matrix");
+        SaveMatrix_Button = new JButton("Save"); {
+            SaveMatrix_Button.setVisible(false);
+        }
+        LoadMatrix_Button = new JButton("Load"); {
+            LoadMatrix_Button.setVisible(false);
+        }
         MatrixSize_TextField = new JTextField[] {
                 new JTextField(),
                 new JTextField(),
         };
         AlphabetChoose_ComboBox = new JComboBox<>(); {
-            AlphabetChoose_ComboBox.addItem("EN Alphabet - Bảng chữ cái la tinh.");
-            AlphabetChoose_ComboBox.addItem("VI Alphabet - Bảng chữ cái tiếng việt.");
-            AlphabetChoose_ComboBox.addItem("Custom Alphabet - Bảng chữ cái tự định nghĩa.");
+            AlphabetChoose_ComboBox.addItem("EN Alphabet - Latin alphabet.");
+            AlphabetChoose_ComboBox.addItem("VI Alphabet - Vietnamese alphabet.");
+            AlphabetChoose_ComboBox.addItem("Custom Alphabet - Your custom alphabet.");
         }
         InputKeyAB_TextField = new JTextField[] {
                 new JTextField(),
                 new JTextField(),
         };
-        LoadKeyAB_Button = new JButton("Load key");
-        SaveKeyAB_Button = new JButton("Lưu key");
+        LoadKeyAB_Button = new JButton("Load key"); {
+            LoadKeyAB_Button.setVisible(false);
+        }
+        SaveKeyAB_Button = new JButton("Save key"); {
+            SaveKeyAB_Button.setVisible(false);
+        }
         PlainTextAlphabet_TextField = new JTextField();
         CipherTextAlphabet_TextField = new JTextField();
-        LoadKeyCipherText_Button = new JButton("Load");
-        SaveKeyCipherText_Button = new JButton("Lưu");
-        GenerateKeyCipherText_Button = new JButton("Tạo ngẫu nhiên");
+        LoadKeyCipherText_Button = new JButton("Load"); {
+            LoadKeyCipherText_Button.setVisible(false);
+        }
+        SaveKeyCipherText_Button = new JButton("Save"); {
+            SaveKeyCipherText_Button.setVisible(false);
+        }
+        GenerateKeyCipherText_Button = new JButton("Generate random");
         ShiftKey_TextField = new JTextField();
-        LoadKeyShift_Button = new JButton("Load");
-        SaveKeyShift_Button = new JButton("Lưu");
-        GenerateKeyShift_Button = new JButton("Tạo ngẫu nhiên");
+        LoadKeyShift_Button = new JButton("Load"); {
+            LoadKeyShift_Button.setVisible(false);
+        }
+        SaveKeyShift_Button = new JButton("Save"); {
+            SaveKeyShift_Button.setVisible(false);
+        }
+        GenerateKeyShift_Button = new JButton("Generate random");
         VigenereKey_TextField = new JTextField();
-        LoadVigenereKey_Button = new JButton("Load");
-        SaveVigenereKey_Button = new JButton("Lưu");
-        GenerateVigenerateKey_Button = new JButton("Tạo ngẫu nhiên");
+        LoadVigenereKey_Button = new JButton("Load"); {
+            LoadVigenereKey_Button.setVisible(false);
+        }
+        SaveVigenereKey_Button = new JButton("Save"); {
+            SaveVigenereKey_Button.setVisible(false);
+        }
+        GenerateVigenerateKey_Button = new JButton("Generate random");
         EventFire_Support = new PropertyChangeSupport(this);
     }
 
@@ -208,9 +228,9 @@ public class ClassicScreen_View extends AScreenView implements ScreenObserver {
     @Override
     public void initialLayout() {
         InputTextWrap_ScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-        InputTextWrap_ScrollPane.setBorder(BorderFactory.createTitledBorder("Nguồn"));
+        InputTextWrap_ScrollPane.setBorder(BorderFactory.createTitledBorder("Source"));
         OutputTextWrap_ScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-        OutputTextWrap_ScrollPane.setBorder(BorderFactory.createTitledBorder("Kết quả"));
+        OutputTextWrap_ScrollPane.setBorder(BorderFactory.createTitledBorder("Output"));
 
         JPanel AlgorithmSettings = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
@@ -219,7 +239,7 @@ public class ClassicScreen_View extends AScreenView implements ScreenObserver {
             gbc.gridx = 0;
             gbc.fill = GridBagConstraints.HORIZONTAL;
             gbc.anchor = GridBagConstraints.WEST;
-            AlgorithmSettings.add(new JLabel("Chọn thuật toán:"), gbc);
+            AlgorithmSettings.add(new JLabel("Choose algorithm:"), gbc);
 
             gbc.gridx = 1;
             gbc.anchor = GridBagConstraints.WEST;
@@ -250,7 +270,7 @@ public class ClassicScreen_View extends AScreenView implements ScreenObserver {
                 gbc2.anchor = GridBagConstraints.NORTHWEST;
                 gbc2.gridheight = 1;
                 gbc2.gridwidth = 1;
-                wrapper.add(new JLabel("Ma trận:"), gbc2);
+                wrapper.add(new JLabel("Matrix:"), gbc2);
 
                 gbc2.gridy = 2;
                 gbc2.gridx = 1;
@@ -275,7 +295,7 @@ public class ClassicScreen_View extends AScreenView implements ScreenObserver {
                 gbc2.insets.top = 5;
                 gbc2.gridy = 3;
                 gbc2.gridx = 1;
-                JPanel matrixActionWrapper = new JPanel(new FlowLayout()); {
+                JPanel matrixActionWrapper = new JPanel(new FlowLayout(FlowLayout.LEFT)); {
                     matrixActionWrapper.add(CreateMatrix_Button);
                     matrixActionWrapper.add(SaveMatrix_Button);
                     matrixActionWrapper.add(LoadMatrix_Button);
@@ -299,7 +319,7 @@ public class ClassicScreen_View extends AScreenView implements ScreenObserver {
                     outputMatrix_ScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
                     outputMatrix_ScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
                 }
-                outputMatrix_ScrollPane.setBorder(new TitledBorder("Ma trận hiện tại"));
+                outputMatrix_ScrollPane.setBorder(new TitledBorder("Current structure"));
                 wrapper.add(outputMatrix_ScrollPane, gbc2);
             }
             gbc.gridx = 0;
@@ -317,7 +337,7 @@ public class ClassicScreen_View extends AScreenView implements ScreenObserver {
             gbc.anchor = GridBagConstraints.WEST;
             gbc.fill = GridBagConstraints.HORIZONTAL;
             gbc.gridwidth = 1;
-            AlgorithmSettings.add(new JLabel("Chọn bảng alphabet:"), gbc);
+            AlgorithmSettings.add(new JLabel("Choose alphabet:"), gbc);
 
             gbc.weightx = 1;
             gbc.gridx = 1;
@@ -328,7 +348,7 @@ public class ClassicScreen_View extends AScreenView implements ScreenObserver {
         gbc.gridy = 3; {
             gbc.gridx = 0;
             gbc.anchor = GridBagConstraints.WEST;
-            AlgorithmSettings.add(new JLabel("Alphabet gốc:"), gbc);
+            AlgorithmSettings.add(new JLabel("Applying alphabet:"), gbc);
 
             gbc.gridx = 1;
             gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -343,7 +363,7 @@ public class ClassicScreen_View extends AScreenView implements ScreenObserver {
             gbc.weightx = 0;
             gbc.gridwidth = GridBagConstraints.REMAINDER;
             var wrapper = new JPanel(new FlowLayout());
-            wrapper.add(new JLabel("Hệ số k ("));
+            wrapper.add(new JLabel("Key pair ("));
             wrapper.add(InputKeyAB_TextField[0]); {
                 InputKeyAB_TextField[0].setColumns(1);
                 InputKeyAB_TextField[0].setHorizontalAlignment(SwingConstants.CENTER);
@@ -367,7 +387,7 @@ public class ClassicScreen_View extends AScreenView implements ScreenObserver {
             gbc.gridx = 0;
             gbc.anchor = GridBagConstraints.WEST;
             gbc.insets.bottom = 1;
-            var label = new JLabel("Alphabet thay thế:");
+            var label = new JLabel("Alphabet in cipher:");
             AlgorithmSettings.add(label, gbc);
             gbc.gridx = 1;
             gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -400,11 +420,11 @@ public class ClassicScreen_View extends AScreenView implements ScreenObserver {
             gbc.gridx = 0;
             gbc.anchor = GridBagConstraints.WEST;
             var wrapper = new JPanel(new FlowLayout(FlowLayout.LEFT));
-            wrapper.add(new JLabel("Dịch chuyển ("), gbc);
+            wrapper.add(new JLabel("Shift ("), gbc);
             wrapper.add(ShiftKey_TextField); {
                 ShiftKey_TextField.setColumns(2);
             }
-            wrapper.add(new JLabel(") kí tự alphabet "));
+            wrapper.add(new JLabel(") characters in alphabet "));
             wrapper.add(LoadKeyShift_Button);
             wrapper.add(SaveKeyShift_Button);
             wrapper.add(GenerateKeyShift_Button);
@@ -420,7 +440,7 @@ public class ClassicScreen_View extends AScreenView implements ScreenObserver {
             gbc.gridx = 0;
             gbc.anchor = GridBagConstraints.WEST;
             gbc.insets.bottom = 1;
-            var label = new JLabel("Khóa mã hóa:");
+            var label = new JLabel("Key for encrypt:");
             AlgorithmSettings.add(label, gbc);
 
             gbc.gridx = 1;

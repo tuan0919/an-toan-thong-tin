@@ -52,22 +52,22 @@ public class SymmetricScreen_View extends AScreenView implements ScreenObserver 
         ModeComboBox = new JComboBox<>();
         PaddingComboBox = new JComboBox<>();
         KeyComboBox = new JComboBox<>();
-        GenerateKeyButton = new JButton("Tạo key");
-        SaveKeyButton = new JButton("Lưu key");
+        GenerateKeyButton = new JButton("Generate key");
+        SaveKeyButton = new JButton("Save key");
         LoadKeyButton = new JButton("Load key");
         AlgorithmComboBox = new JComboBox<>();
-        ChooseFileButton = new JButton("Chọn file");
-        CancelFileButton = new JButton("Hủy chọn file");
-        IsSelectedLabel = new JLabel("Không có file nào được chọn");
-        InputIVLabel = new JLabel("Nhập IV:");
+        ChooseFileButton = new JButton("Choose file");
+        CancelFileButton = new JButton("Cancel file");
+        IsSelectedLabel = new JLabel("No file has been selected.");
+        InputIVLabel = new JLabel("Initialize Vector:");
         InputTextArea = new JTextArea(15, 30);
         InputTextArea.setLineWrap(true);
         InputTextArea.setWrapStyleWord(true);
         OutputTextArea = new JTextArea(15, 30);
         OutputTextArea.setLineWrap(true);
         OutputTextArea.setWrapStyleWord(true);
-        EncryptButton = new JButton("Mã hóa");
-        DecryptButton = new JButton("Giải mã");
+        EncryptButton = new JButton("Encrypt");
+        DecryptButton = new JButton("Decrypt");
         FileChooser = new JFileChooser();
         PropertyChangeSupport = new PropertyChangeSupport(this);
     }
@@ -84,7 +84,7 @@ public class SymmetricScreen_View extends AScreenView implements ScreenObserver 
         // Nhãn và trường nhập cho Key
         gbc.gridx = 0;
         gbc.gridy = 0;
-        settingsPanel.add(new JLabel("Nhập key:"), gbc);
+        settingsPanel.add(new JLabel("Key:"), gbc);
         gbc.gridx = 1;
         settingsPanel.add(InputKeyTextField, gbc);
 
@@ -98,28 +98,28 @@ public class SymmetricScreen_View extends AScreenView implements ScreenObserver 
         // Nhãn và lựa chọn Mode
         gbc.gridx = 0;
         gbc.gridy = 2;
-        settingsPanel.add(new JLabel("Chọn mode:"), gbc);
+        settingsPanel.add(new JLabel("Mode:"), gbc);
         gbc.gridx = 1;
         settingsPanel.add(ModeComboBox, gbc);
 
         // Nhãn và lựa chọn Padding
         gbc.gridx = 0;
         gbc.gridy = 3;
-        settingsPanel.add(new JLabel("Chọn padding:"), gbc);
+        settingsPanel.add(new JLabel("Padding:"), gbc);
         gbc.gridx = 1;
         settingsPanel.add(PaddingComboBox, gbc);
 
         // Nhãn và lựa chọn giải thuật
         gbc.gridx = 0;
         gbc.gridy = 4;
-        settingsPanel.add(new JLabel("Chọn giải thuật:"), gbc);
+        settingsPanel.add(new JLabel("Algorithm:"), gbc);
         gbc.gridx = 1;
         settingsPanel.add(AlgorithmComboBox, gbc);
 
         // Nhãn và lựa chọn Key Size
         gbc.gridx = 0;
         gbc.gridy = 5;
-        settingsPanel.add(new JLabel("Chọn key size:"), gbc);
+        settingsPanel.add(new JLabel("Key size:"), gbc);
         gbc.gridx = 1;
         settingsPanel.add(KeyComboBox, gbc);
 
@@ -152,18 +152,18 @@ public class SymmetricScreen_View extends AScreenView implements ScreenObserver 
         // Panel chính cho phần cài đặt
         JPanel topPanel = new JPanel();
         topPanel.setLayout(new BorderLayout(10, 10));
-        topPanel.setBorder(BorderFactory.createTitledBorder("Cài đặt mã hóa"));
+        topPanel.setBorder(BorderFactory.createTitledBorder("Algorithm settings"));
         topPanel.add(settingsPanel, BorderLayout.CENTER);
         topPanel.add(filePanel, BorderLayout.SOUTH);
 
         // Panel chứa các JTextArea cho văn bản nhập và kết quả
         JScrollPane inputScrollPane = new JScrollPane(InputTextArea);
         inputScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-        inputScrollPane.setBorder(BorderFactory.createTitledBorder("Văn bản nguồn"));
+        inputScrollPane.setBorder(BorderFactory.createTitledBorder("Source text"));
 
         JScrollPane outputScrollPane = new JScrollPane(OutputTextArea);
         outputScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-        outputScrollPane.setBorder(BorderFactory.createTitledBorder("Kết quả mã hóa"));
+        outputScrollPane.setBorder(BorderFactory.createTitledBorder("Output"));
 
         // Panel chứa hai JTextArea để nhập và xuất văn bản
         JPanel textPanel = new JPanel();
@@ -419,7 +419,7 @@ public class SymmetricScreen_View extends AScreenView implements ScreenObserver 
                     InputTextArea.setEnabled(false);
                     OutputTextArea.setEnabled(false);
                 } else {
-                    IsSelectedLabel.setText("Không có file nào được chọn"); // Đặt lại nhãn về trạng thái mặc định
+                    IsSelectedLabel.setText("No file has been selected."); // Đặt lại nhãn về trạng thái mặc định
                     // Enable lại cả hai JTextArea
                     InputTextArea.setEnabled(true);
                     OutputTextArea.setEnabled(true);

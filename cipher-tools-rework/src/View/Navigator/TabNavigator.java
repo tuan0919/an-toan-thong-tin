@@ -28,7 +28,7 @@ public class TabNavigator extends JTabbedPane {
     }
 
     public TabNavigator() {
-        addTab("Traditional", TraditionalScreenView);
+        addTab("Classic", TraditionalScreenView);
         addTab("Symmetric", SymmetricScreenView);
         addTab("Asymmetric", AsymmetricScreenView);
         addTab("Hash", HashScreenView);

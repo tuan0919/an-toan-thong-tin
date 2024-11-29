@@ -1,7 +1,6 @@
 import MyException.GlobalExceptionHandler;
 import View.Navigator.TabNavigator;
 import com.formdev.flatlaf.FlatLightLaf;
-
 import javax.swing.*;
 import java.awt.*;
 

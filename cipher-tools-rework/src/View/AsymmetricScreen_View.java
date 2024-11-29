@@ -58,14 +58,14 @@ public class AsymmetricScreen_View extends AScreenView implements ScreenObserver
         PublicKey_TextArea.setLineWrap(true);
         PrivateKey_TextArea.setWrapStyleWord(true);
         PrivateKey_TextArea.setLineWrap(true);
-        SavePrivateKey_Button = new JButton("Lưu key");
+        SavePrivateKey_Button = new JButton("Save key");
         LoadPrivateKey_Button = new JButton("Load key");
-        SavePublicKey_Button = new JButton("Lưu key");
+        SavePublicKey_Button = new JButton("Save key");
         LoadPublicKey_Button = new JButton("Load key");
-        Encrypt_Button = new JButton("Mã hóa");
-        Decrypt_Button = new JButton("Giải mã");
-        GenerateKey_Button = new JButton("Tạo key");
-        SaveKey_Button = new JButton("Lưu key");
+        Encrypt_Button = new JButton("Encrypt");
+        Decrypt_Button = new JButton("Decrypt");
+        GenerateKey_Button = new JButton("Generate random key");
+        SaveKey_Button = new JButton("Save key");
         PublicKey_RadioButton = new JRadioButton("Public key");
         PrivateKey_RadioButton = new JRadioButton("Private key");
         KeyButtonGroup = new ButtonGroup();
@@ -88,23 +88,23 @@ public class AsymmetricScreen_View extends AScreenView implements ScreenObserver
         // Cấu hình các JScrollPane cho Input và Output
         JScrollPane scrollPane = new JScrollPane(Input_TextArea);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-        scrollPane.setBorder(BorderFactory.createTitledBorder("Nguồn"));
+        scrollPane.setBorder(BorderFactory.createTitledBorder("Source"));
 
         JScrollPane scrollPane2 = new JScrollPane(Output_TextArea);
         scrollPane2.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-        scrollPane2.setBorder(BorderFactory.createTitledBorder("Kết quả"));
+        scrollPane2.setBorder(BorderFactory.createTitledBorder("Output"));
 
         // Cấu hình các JLabel
-        JLabel label1 = new JLabel("Giải thuật:");
+        JLabel label1 = new JLabel("Algorithm:");
         JLabel label2 = new JLabel("RSA");
-        JLabel label3 = new JLabel("Chọn kích thước:");
-        JLabel label4 = new JLabel("Nhập key");
+        JLabel label3 = new JLabel("Key size:");
+        JLabel label4 = new JLabel("Key input fields");
         JLabel label5 = new JLabel("Public key:");
         JLabel label6 = new JLabel("Private key:");
 
         // Panel cho các lựa chọn và key
         JPanel panelModeAndKey = new JPanel(new GridBagLayout());
-        panelModeAndKey.setBorder(BorderFactory.createTitledBorder("Cài đặt mã hóa"));
+        panelModeAndKey.setBorder(BorderFactory.createTitledBorder("Algorithm settings"));
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
         gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -165,7 +165,7 @@ public class AsymmetricScreen_View extends AScreenView implements ScreenObserver
 
         gbc.gridx = 0;
         gbc.gridy = 7;
-        panelModeAndKey.add(new JLabel("Chọn key sử dụng"), gbc);
+        panelModeAndKey.add(new JLabel("Usage key:"), gbc);
 
         JPanel RadioKeyButtonWrap = new JPanel(new FlowLayout(FlowLayout.LEFT));
         RadioKeyButtonWrap.add(PublicKey_RadioButton);

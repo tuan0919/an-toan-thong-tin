@@ -6,6 +6,7 @@ import Model.Screen.SignatureScreen_Model;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
@@ -131,13 +132,13 @@ public class SignatureScreen_View extends AScreenView implements ScreenObserver 
     public void initialComponent() {
         HashAlgorithm_ComboBox = new JComboBox<>();
         KeySize_ComboBox = new JComboBox<>();
-        GenerateKey_Button = new JButton("Tạo cặp key");
-        SavePublicKey_Button = new JButton("Lưu key");
+        GenerateKey_Button = new JButton("Generate key pair");
+        SavePublicKey_Button = new JButton("Save key");
         LoadPublicKey_Button = new JButton("Load key");
-        SavePrivateKey_Button = new JButton("Lưu key");
+        SavePrivateKey_Button = new JButton("Save key");
         LoadPrivateKey_Button = new JButton("Load key");
-        LoadFile_Button = new JButton("Load file");
-        DeselectFile_Button = new JButton("Hủy bỏ file");
+        LoadFile_Button = new JButton("Choose file");
+        DeselectFile_Button = new JButton("Cancel file");
         SignatureNavigator_TabbedPane = new JTabbedPane();
         PublicKey_TextArea = new JTextArea();
         PrivateKey_TextArea = new JTextArea();
@@ -150,14 +151,14 @@ public class SignatureScreen_View extends AScreenView implements ScreenObserver 
         };
         ChooseInputType_RadioButtons = new JRadioButton[]{
                 new JRadioButton("File"),
-                new JRadioButton("Văn bản"),
+                new JRadioButton("Text"),
         };
-        ChosenFilePath_Label = new JLabel("Chưa có file nào được chọn");
+        ChosenFilePath_Label = new JLabel("No file has been selected.");
         SignatureNavigator_TabbedPane = new JTabbedPane();
         UserFileChosen_FileChooser = new JFileChooser();
         EventFire_Support = new PropertyChangeSupport(this);
-        CreateSignature_Button = new JButton("Tạo chữ ký số");
-        CheckSignature_Button = new JButton("Xác thực chữ ký số");
+        CreateSignature_Button = new JButton("Create signature");
+        CheckSignature_Button = new JButton("Validate signature");
         MainSplitter_SplitPane = new JSplitPane();
         MainSplitter_SplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
     }
@@ -225,11 +226,11 @@ public class SignatureScreen_View extends AScreenView implements ScreenObserver 
         gbc.gridwidth = 1; {
             gbc.gridx = 0;
             gbc.anchor = GridBagConstraints.WEST; // Căn trái label
-            AlgorithmSettingsPanel.add(new JLabel("Thuật toán băm:"), gbc);
+            AlgorithmSettingsPanel.add(new JLabel("Hash algorithm:"), gbc);
             gbc.gridx = 1;
             AlgorithmSettingsPanel.add(HashAlgorithm_ComboBox, gbc);
             gbc.gridx = 2;
-            AlgorithmSettingsPanel.add(new JLabel("Kích thước khóa:"), gbc);
+            AlgorithmSettingsPanel.add(new JLabel("Key size:"), gbc);
             gbc.gridx = 3;
             AlgorithmSettingsPanel.add(KeySize_ComboBox, gbc);
             gbc.gridx = 4;
@@ -301,7 +302,7 @@ public class SignatureScreen_View extends AScreenView implements ScreenObserver 
             gbc.weightx = 0;
             gbc.anchor = GridBagConstraints.WEST;
             gbc.fill = GridBagConstraints.NONE;
-            AlgorithmSettingsPanel.add(new JLabel("Key sử dụng:"), gbc);
+            AlgorithmSettingsPanel.add(new JLabel("Usage key:"), gbc);
 
             gbc.gridx = 1;
             gbc.gridwidth = GridBagConstraints.REMAINDER;
@@ -318,7 +319,7 @@ public class SignatureScreen_View extends AScreenView implements ScreenObserver 
 
 
         // Đóng gói panel vào một JPanel Wrapper để căn giữa
-        var titledBorder  = BorderFactory.createTitledBorder("Cài đặt mã hóa");
+        var titledBorder  = BorderFactory.createTitledBorder("Algorithm settings");
         {
             titledBorder.setTitlePosition(TitledBorder.TOP); // Tiêu đề nằm ở phía trên
             titledBorder.setTitleJustification(TitledBorder.LEFT); // Căn giữa tiêu đề
@@ -396,9 +397,98 @@ public class SignatureScreen_View extends AScreenView implements ScreenObserver 
                 CheckSignKey_TabPanel.add(ButtonWrapper, BorderLayout.SOUTH);
             }
             SignatureNavigator_TabbedPane.setBorder(titledBorder);
-            SignatureNavigator_TabbedPane.addTab("Tạo chữ ký", SignWithKey_TabPanel);
-            SignatureNavigator_TabbedPane.addTab("Xác thực chữ ký", CheckSignKey_TabPanel);
+            SignatureNavigator_TabbedPane.addTab("Signing input", SignWithKey_TabPanel);
+            SignatureNavigator_TabbedPane.addTab("Validate signed input", CheckSignKey_TabPanel);
         }
+    }
+
+    public void onSavePrivateKeyButton_Click(Consumer<Void> callback) {
+        SavePrivateKey_Button.addActionListener(e -> callback.accept(null));
+    }
+
+    public void onLoadPrivateKeyButton_Click(Consumer<Void> callback) {
+        LoadPrivateKey_Button.addActionListener(e -> callback.accept(null));
+    }
+
+    public void onSavePublicKeyButton_Click(Consumer<Void> callback) {
+        SavePublicKey_Button.addActionListener(e -> callback.accept(null));
+    }
+
+    public void onLoadPublicKeyButton_Click(Consumer<Void> callback) {
+        LoadPublicKey_Button.addActionListener(e -> callback.accept(null));
+    }
+
+
+    public void onChooseLocation_ForSavePrivateKey(Consumer<File> callback) {
+        EventFire_Support.addPropertyChangeListener("user_choose_save_private_key_location", (event) -> {
+            File file = (File) event.getNewValue();
+            callback.accept(file);
+        });
+    }
+
+    public void onChooseLocation_ForLoadPrivateKey(Consumer<File> callback) {
+        EventFire_Support.addPropertyChangeListener("user_choose_load_private_key_location", (event) -> {
+            File file = (File) event.getNewValue();
+            callback.accept(file);
+        });
+    }
+
+    public int openJFileChooser_ForSavePrivateKey() {
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("Text Files and PEM Files (*.txt, *.pem)", "txt", "pem");
+        UserFileChosen_FileChooser.setFileFilter(filter);
+        int result = UserFileChosen_FileChooser.showSaveDialog(this);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            File file = UserFileChosen_FileChooser.getSelectedFile();
+            EventFire_Support.firePropertyChange("user_choose_save_private_key_location", null, file);
+        }
+        return result;
+    }
+
+    public int openJFileChooser_ForLoadPrivateKey() {
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("Text Files and PEM Files (*.txt, *.pem)", "txt", "pem");
+        UserFileChosen_FileChooser.setFileFilter(filter);
+        int result = UserFileChosen_FileChooser.showOpenDialog(this);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            File file = UserFileChosen_FileChooser.getSelectedFile();
+            EventFire_Support.firePropertyChange("user_choose_load_private_key_location", null, file);
+        }
+        return result;
+    }
+
+    public void onChooseLocation_ForSavePublicKey(Consumer<File> callback) {
+        EventFire_Support.addPropertyChangeListener("user_choose_save_public_key_location", (event) -> {
+            File file = (File) event.getNewValue();
+            callback.accept(file);
+        });
+    }
+
+    public void onChooseLocation_ForLoadPublicKey(Consumer<File> callback) {
+        EventFire_Support.addPropertyChangeListener("user_choose_load_public_key_location", (event) -> {
+            File file = (File) event.getNewValue();
+            callback.accept(file);
+        });
+    }
+
+    public int openJFileChooser_ForSavePublicKey() {
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("Text Files and PEM Files (*.txt, *.pem)", "txt", "pem");
+        UserFileChosen_FileChooser.setFileFilter(filter);
+        int result = UserFileChosen_FileChooser.showSaveDialog(this);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            File file = UserFileChosen_FileChooser.getSelectedFile();
+            EventFire_Support.firePropertyChange("user_choose_save_public_key_location", null, file);
+        }
+        return result;
+    }
+
+    public int openJFileChooser_ForLoadPublicKey() {
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("Text Files and PEM Files (*.txt, *.pem)", "txt", "pem");
+        UserFileChosen_FileChooser.setFileFilter(filter);
+        int result = UserFileChosen_FileChooser.showOpenDialog(this);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            File file = UserFileChosen_FileChooser.getSelectedFile();
+            EventFire_Support.firePropertyChange("user_choose_load_public_key_location", null, file);
+        }
+        return result;
     }
 
     @Override
@@ -407,11 +497,21 @@ public class SignatureScreen_View extends AScreenView implements ScreenObserver 
             case "first_load" -> {
                 List<String> algorithms = (List<String>) data.get("available_algorithm");
                 List<Integer> keySizes = (List<Integer>) data.get("available_key_size");
+                Integer currentKeySize = (Integer) data.get("current_key_size");
+                String currentAlgorithm = (String) data.get("current_algorithm");
+                var clazz = (Class<? extends Key>) data.get("current_input_mode");
+                if (clazz == PrivateKey.class) {
+                    ChooseUsageKey_RadioButtons[1].setSelected(true);
+                } else {
+                    ChooseUsageKey_RadioButtons[0].setSelected(true);
+                }
                 for (String algorithm : algorithms) {
                     HashAlgorithm_ComboBox.addItem(algorithm);
+                    if (currentAlgorithm.equals(algorithm)) HashAlgorithm_ComboBox.setSelectedItem(algorithm);
                 }
                 for (int keySize : keySizes) {
                     KeySize_ComboBox.addItem(keySize);
+                    if (keySize == currentKeySize) KeySize_ComboBox.setSelectedItem(keySize);
                 }
             }
             case "generated_key_pair" -> {
@@ -449,6 +549,14 @@ public class SignatureScreen_View extends AScreenView implements ScreenObserver 
                     EventFire_Support.firePropertyChange("input_file_chosen", null, file);
                     ChosenFilePath_Label.setText(file.getAbsolutePath());
                 }
+            }
+            case "load_private_key" -> {
+                String secretKey = (String) data.get("current_private_key");
+                PrivateKey_TextArea.setText(secretKey);
+            }
+            case "load_public_key" -> {
+                String secretKey = (String) data.get("current_public_key");
+                PublicKey_TextArea.setText(secretKey);
             }
         }
     }

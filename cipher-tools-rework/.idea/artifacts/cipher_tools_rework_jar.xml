@@ -1,0 +1,10 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="cipher-tools-rework:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/cipher_tools_rework_jar</output-path>
+    <root id="archive" name="cipher-tools-rework.jar">
+      <element id="module-output" name="cipher-tools-rework" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/src/lib/flatlaf-3.5.2.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/src/lib/bcprov-jdk18on-1.79.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>

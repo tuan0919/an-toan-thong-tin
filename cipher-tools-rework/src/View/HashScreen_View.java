@@ -86,9 +86,9 @@ public class HashScreen_View extends AScreenView implements ScreenObserver {
     public void initialComponent() {
         // Khởi tạo các thành phần giao diện
         SelectHash_ComboBox = new JComboBox<>();
-        SelectFile_Button = new JButton("Chọn file");
-        DeselectFile_Button = new JButton("Hủy chọn file");
-        IsSelectedFile_Label = new JLabel("Không có file nào được chọn");
+        SelectFile_Button = new JButton("Choose file");
+        DeselectFile_Button = new JButton("Cancel file");
+        IsSelectedFile_Label = new JLabel("No file has been chosen.");
 
         InputTextArea = new JTextArea(5, 35);
         InputTextArea.setLineWrap(true);
@@ -96,7 +96,7 @@ public class HashScreen_View extends AScreenView implements ScreenObserver {
 
         InputTextWrap_ScrollPane = new JScrollPane(InputTextArea);
         InputTextWrap_ScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-        InputTextWrap_ScrollPane.setBorder(BorderFactory.createTitledBorder("Nguồn"));
+        InputTextWrap_ScrollPane.setBorder(BorderFactory.createTitledBorder("Source"));
 
         OutputTextArea = new JTextArea(5, 35);
         OutputTextArea.setLineWrap(true);
@@ -104,7 +104,7 @@ public class HashScreen_View extends AScreenView implements ScreenObserver {
 
         OutputTextWrap_ScrollPane = new JScrollPane(OutputTextArea);
         OutputTextWrap_ScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-        OutputTextWrap_ScrollPane.setBorder(BorderFactory.createTitledBorder("Kết quả"));
+        OutputTextWrap_ScrollPane.setBorder(BorderFactory.createTitledBorder("Output"));
 
         JFileChooser = new JFileChooser();
         EventFireSupport = new PropertyChangeSupport(this);
@@ -129,7 +129,7 @@ public class HashScreen_View extends AScreenView implements ScreenObserver {
 
         gbc.gridx = 0;
         gbc.gridy = 0;
-        SelectModeWrap_Panel.add(new JLabel("Thuật toán:"), gbc);
+        SelectModeWrap_Panel.add(new JLabel("Algorithm:"), gbc);
 
         gbc.gridx = 1;
         gbc.gridy = 0;
@@ -183,7 +183,7 @@ public class HashScreen_View extends AScreenView implements ScreenObserver {
                     IsSelectedFile_Label.setText(optionalFile.get().getAbsolutePath());
                 } else {
                     InputTextArea.setEditable(true);
-                    IsSelectedFile_Label.setText("Không có file nào được chọn");
+                    IsSelectedFile_Label.setText("No file has been chosen.");
                 }
             }
             case "hash_file" -> {
