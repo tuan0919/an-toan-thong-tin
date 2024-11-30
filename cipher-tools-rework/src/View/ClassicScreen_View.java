@@ -54,6 +54,8 @@ public class ClassicScreen_View extends AScreenView implements ScreenObserver {
     private JButton LoadVigenereKey_Button;
     private JButton SaveVigenereKey_Button;
     private JButton GenerateVigenerateKey_Button;
+    private JTextField TranspositionKey_TextField;
+    private JTextField TranspositionPadding_TextField;
     private PropertyChangeSupport EventFire_Support;
 
     public ClassicScreen_View() {
@@ -114,7 +116,9 @@ public class ClassicScreen_View extends AScreenView implements ScreenObserver {
         SaveKeyShift_Button = new JButton("Save"); {
             SaveKeyShift_Button.setVisible(false);
         }
-        GenerateKeyShift_Button = new JButton("Generate random");
+        GenerateKeyShift_Button = new JButton("Generate random"); {
+            GenerateKeyShift_Button.setVisible(false);
+        }
         VigenereKey_TextField = new JTextField();
         LoadVigenereKey_Button = new JButton("Load"); {
             LoadVigenereKey_Button.setVisible(false);
@@ -125,7 +129,27 @@ public class ClassicScreen_View extends AScreenView implements ScreenObserver {
         GenerateVigenerateKey_Button = new JButton("Generate random"); {
             GenerateVigenerateKey_Button.setVisible(false);
         }
+        TranspositionKey_TextField = new JTextField();
+        TranspositionPadding_TextField = new JTextField();
         EventFire_Support = new PropertyChangeSupport(this);
+    }
+
+    public void onChangeTranspositionKey(Consumer<String> callback) {
+        TranspositionKey_TextField.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusLost(FocusEvent e) {
+                callback.accept(TranspositionKey_TextField.getText());
+            }
+        });
+    }
+
+    public void onChangeTranspositionPadding(Consumer<String> callback) {
+        TranspositionPadding_TextField.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusLost(FocusEvent e) {
+                callback.accept(TranspositionPadding_TextField.getText());
+            }
+        });
     }
 
     public void onGenerateKeyCipherTextButton_Click(Consumer<Void> callback) {
@@ -467,6 +491,26 @@ public class ClassicScreen_View extends AScreenView implements ScreenObserver {
                 VigenereKey_TextField.setVisible(algorithm.equals(ClassicScreen_Model.VIGENERE_ALGORITHM));
             });
         } // hàng 8 và 9
+        gbc.gridy = 10; {
+            gbc.gridx = 0;
+            gbc.anchor = GridBagConstraints.WEST;
+            gbc.weightx = 0;
+            gbc.gridwidth = GridBagConstraints.REMAINDER;
+            var wrapper = new JPanel(new FlowLayout());
+            wrapper.add(new JLabel("key using: "));
+            wrapper.add(TranspositionKey_TextField);
+            wrapper.add(new JLabel(", padding: "));
+            wrapper.add(TranspositionPadding_TextField); {
+                TranspositionPadding_TextField.setColumns(1);
+                TranspositionPadding_TextField.setHorizontalAlignment(SwingConstants.CENTER);
+            }
+            AlgorithmSettings.add(wrapper, gbc);
+            EventFire_Support.addPropertyChangeListener("change_algorithm", evt -> {
+                String algorithm = (String) evt.getNewValue();
+                wrapper.setVisible(algorithm.equals(ClassicScreen_Model.TRANSPOSITION_ALGORITHM));
+            });
+            wrapper.setVisible(false);
+        }
         OverallContentWrap_Panel.add(InputTextWrap_ScrollPane);
         OverallContentWrap_Panel.add(OutputTextWrap_ScrollPane);
 
@@ -536,7 +580,6 @@ public class ClassicScreen_View extends AScreenView implements ScreenObserver {
 
     public void onMatrixCellChange(BiConsumer<MatrixCell, Integer[][]> callback) {
         MatrixInput_Table.addTableModelChangeListener((event, data) -> {
-            System.out.println("onMatrixCellChange");
             int row = event.getFirstRow();
             int col = event.getColumn();
             Integer[][] dataCopy = new Integer[data.length][];
@@ -555,9 +598,11 @@ public class ClassicScreen_View extends AScreenView implements ScreenObserver {
                 List<String> algorithms = (List<String>) data.get("available_algorithm");
                 String currentAlgorithm = (String) data.get("current_algorithm");
                 Integer currentAlphabetIndex = (Integer) data.get("current_alphabet_index");
+                char transpositionPadding = (char) data.get("current_transposition_padding");
                 loadAlgorithmComboBox(algorithms);
                 AlgorithmSelector_ComboBox.setSelectedItem(currentAlgorithm);
                 AlphabetChoose_ComboBox.setSelectedIndex(currentAlphabetIndex);
+                TranspositionPadding_TextField.setText(transpositionPadding+"");
             }
             case "change_algorithm" -> {
                 String algorithm = (String) data.get("algorithm");

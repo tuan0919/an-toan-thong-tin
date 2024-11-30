@@ -13,6 +13,7 @@ public class ClassicScreen_Model implements ModelObservable {
     public static final String VIGENERE_ALGORITHM = "Vigenere";
     public static final String SUBSTITUTION_ALGORITHM = "Substitution";
     public static final String HILL_ALGORITHM = "Hill";
+    public static final String TRANSPOSITION_ALGORITHM = "Transposition";
     private List<ScreenObserver> observers = new ArrayList<>();
     private String algorithm;
     private String alphabet;
@@ -24,12 +25,15 @@ public class ClassicScreen_Model implements ModelObservable {
     private String vigenereKey;
     private Integer caesarKey;
     private String substitutionKey;
+    private String transpositionKey;
+    private char transpositionPadding;
     static List<String> availableAlgorithms = new ArrayList<>() {{
         this.add(CAESAR_ALGORITHM);
         this.add(AFFINE_ALGORITHM);
         this.add(VIGENERE_ALGORITHM);
         this.add(SUBSTITUTION_ALGORITHM);
         this.add(HILL_ALGORITHM);
+        this.add(TRANSPOSITION_ALGORITHM);
     }};
     // Đăng ký Observer
     public void addObserver(ScreenObserver observer) {
@@ -129,5 +133,21 @@ public class ClassicScreen_Model implements ModelObservable {
 
     public List<String> getAvailableAlgorithms() {
         return availableAlgorithms;
+    }
+
+    public String getTranspositionKey() {
+        return transpositionKey;
+    }
+
+    public void setTranspositionKey(String transpositionKey) {
+        this.transpositionKey = transpositionKey;
+    }
+
+    public char getTranspositionPadding() {
+        return transpositionPadding;
+    }
+
+    public void setTranspositionPadding(char transpositionPadding) {
+        this.transpositionPadding = transpositionPadding;
     }
 }

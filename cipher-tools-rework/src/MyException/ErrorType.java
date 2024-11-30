@@ -20,7 +20,8 @@ public enum ErrorType {
     WRONG_AFFINE_KEY("Wrong key input", "Key must be an integer", JOptionPane.WARNING_MESSAGE),
     WRONG_CAESAR_KEY("Wrong key input", "Key must be an integer", JOptionPane.WARNING_MESSAGE),
     WRONG_SUBSTITUTION_KEY("Wrong key input", "Key's size must be the same as applying alphabets.", JOptionPane.WARNING_MESSAGE),
-    UNKNOWN_SIGNATURE_FORMAT("Cannot recognize signature", "Your digital signature is in invalid format and cannot be validated.", JOptionPane.WARNING_MESSAGE)
+    UNKNOWN_SIGNATURE_FORMAT("Cannot recognize signature", "Your digital signature is in invalid format and cannot be validated.", JOptionPane.WARNING_MESSAGE),
+    PADDING_CHARACTER_IS_NOT_VALID("Wrong padding input", "Padding must be one character", JOptionPane.WARNING_MESSAGE)
     ;
     private final String message;
     private final String title;

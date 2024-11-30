@@ -14,6 +14,7 @@ public class ClassicScreen_Controller extends AController<ClassicScreen_View> {
     private Vigenere vigenere;
     private Caesar caesar;
     private Substitution substitution;
+    private Transposition transposition;
     private ClassicScreen_Model model;
     public ClassicScreen_Controller(ClassicScreen_View view) {
         super(view);
@@ -34,6 +35,13 @@ public class ClassicScreen_Controller extends AController<ClassicScreen_View> {
         view.onChangeCaesarKey(caesarKey -> model.setCaesarKey(caesarKey));
         view.onChangeCipherAlphabet(cipherAlphabet -> model.setSubstitutionKey(cipherAlphabet));
         view.onGenerateKeyCipherTextButton_Click(x -> handleGenerateCipherAlphabet());
+        view.onChangeTranspositionKey(key -> model.setTranspositionKey(key));
+        view.onChangeTranspositionPadding(padding -> {
+            if (padding.length() != 1) {
+                throw new MyAppException(ErrorType.PADDING_CHARACTER_IS_NOT_VALID, view);
+            }
+            model.setTranspositionPadding(padding.charAt(0));
+        });
     }
 
     private void handleGenerateCipherAlphabet() {
@@ -91,6 +99,12 @@ public class ClassicScreen_Controller extends AController<ClassicScreen_View> {
                 substitution.loadKey(substitutionKey);
                 plainText = substitution.decrypt(input);
             }
+            case "Transposition" -> {
+                String transpositionKey = model.getTranspositionKey();
+                char padding = model.getTranspositionPadding();
+                transposition.loadKey(transpositionKey, padding);
+                plainText = transposition.decrypt(input);
+            }
         }
         model.notifyObservers("decrypted", Map.of(
                 "plain_text", plainText
@@ -137,6 +151,12 @@ public class ClassicScreen_Controller extends AController<ClassicScreen_View> {
                 substitution.loadKey(substitutionKey);
                 cipherText = substitution.encrypt(input);
             }
+            case "Transposition" -> {
+                String transpositionKey = model.getTranspositionKey();
+                char padding = model.getTranspositionPadding();
+                transposition.loadKey(transpositionKey, padding);
+                cipherText = transposition.encrypt(input);
+            }
         }
         model.notifyObservers("encrypted", Map.of(
                 "cipher_text", cipherText
@@ -181,15 +201,18 @@ public class ClassicScreen_Controller extends AController<ClassicScreen_View> {
         this.vigenere = new Vigenere();
         this.caesar = new Caesar();
         this.substitution = new Substitution();
+        this.transposition = new Transposition();
         model.addObserver(view);
         {
             model.setAlphabet(Alphabet.EN.getAlphabet());
             model.setAlgorithm(ClassicScreen_Model.AFFINE_ALGORITHM);
+            model.setTranspositionPadding('x');
         }
         model.notifyObservers("first_load", Map.of(
                 "available_algorithm", model.getAvailableAlgorithms(),
                 "current_algorithm", ClassicScreen_Model.AFFINE_ALGORITHM,
-                "current_alphabet_index", 0
+                "current_alphabet_index", 0,
+                "current_transposition_padding", 'x'
         ));
     }
 
